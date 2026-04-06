@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryan's Daily Command</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --surface: #141816;
+    --surface2: #1c201e;
+    --border: #2a302c;
+    --accent: #c8f060;
+    --accent2: #60f0b8;
+    --accent3: #f0c060;
+    --accent4: #f06090;
+    --text: #e8ede9;
+    --text-dim: #7a8c7d;
+    --text-muted: #3d4d3f;
+    --focus-bg: rgba(200, 240, 96, 0.06);
+    --nudge-bg: rgba(240, 192, 96, 0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* DAY PICKER OVERLAY */
+  #day-picker-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  #day-picker-overlay h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  #day-picker-overlay p {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 0;
+  }
+
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    max-width: 700px;
+    width: 90%;
+  }
+
+  .day-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 20px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .day-btn .day-initial {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .day-btn.office .day-initial { color: var(--accent2); }
+  .day-btn.flex .day-initial { color: var(--accent); }
+  .day-btn.church .day-initial { color: var(--accent3); }
+  .day-btn.weekend .day-initial { color: var(--accent4); }
+
+  .day-btn:hover {
+    background: var(--surface2);
+    border-color: var(--accent);
+    color: var(--text);
+    transform: translateY(-2px);
+  }
+
+  .day-btn .tag {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(13, 15, 14, 0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .header-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  #current-day-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { border-color: var(--accent); color: var(--accent); background: var(--focus-bg); }
+  .btn.danger { border-color: var(--accent4); color: var(--accent4); }
+
+  /* LIVE CLOCK */
+  #live-clock {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* PROGRESS BAR */
+  #day-progress-bar {
+    height: 2px;
+    background: var(--border);
+    position: relative;
+  }
+
+  #day-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 60s linear;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+    min-height: calc(100vh - 62px);
+  }
+
+  /* SCHEDULE COLUMN */
+  .schedule-col {
+    padding: 32px;
+    border-right: 1px solid var(--border);
+  }
+
+  .day-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+
+  .day-type-badge.office { border-color: var(--accent2); color: var(--accent2); }
+  .day-type-badge.flex { border-color: var(--accent); color: var(--accent); }
+  .day-type-badge.church { border-color: var(--accent3); color: var(--accent3); }
+  .day-type-badge.weekend { border-color: var(--accent4); color: var(--accent4); }
+
+  /* TIME BLOCKS */
+  .block {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+    position: relative;
+    animation: slideIn 0.4s ease both;
+  }
+
+  .block:hover {
+    border-color: var(--border);
+    background: var(--surface);
+  }
+
+  .block.current-block {
+    border-color: var(--accent) !important;
+    background: var(--focus-bg) !important;
+  }
+
+  .block.current-block::before {
+    content: '▶';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 10px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .block-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 14px 16px 14px 0;
+    letter-spacing: 0.05em;
+    border-right: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .block-time .end-time {
+    display: block;
+    font-size: 10px;
+    opacity: 0.7;
+  }
+
+  .block-content {
+    padding: 14px 16px;
+  }
+
+  .block-title {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .block-title .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+
+  .pill.focus { background: rgba(200,240,96,0.15); color: var(--accent); }
+  .pill.review { background: rgba(96,240,184,0.12); color: var(--accent2); }
+  .pill.meals { background: rgba(240,192,96,0.12); color: var(--accent3); }
+  .pill.workout { background: rgba(240,96,144,0.12); color: var(--accent4); }
+  .pill.church { background: rgba(240,192,96,0.12); color: var(--accent3); }
+  .pill.admin { background: rgba(122,140,125,0.15); color: var(--text-dim); }
+
+  .block-detail {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* BLOCK EXPAND PANEL */
+  .block { cursor: pointer; }
+
+  .block-expand {
+    display: none;
+    grid-column: 1 / -1;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    padding: 14px 16px 14px 96px;
+    animation: expandIn 0.2s ease;
+  }
+
+  @keyframes expandIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .block.expanded { border-color: var(--border) !important; background: var(--surface) !important; }
+  .block.expanded .block-expand { display: block; }
+  .block.expanded.current-block { border-color: var(--accent) !important; }
+
+  .expand-section { margin-bottom: 10px; }
+  .expand-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .expand-value {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .expand-value.highlight { color: var(--text); }
+
+  .expand-tips {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .tip-item {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    padding: 3px 0;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .tip-item::before { content: '—'; color: var(--text-muted); flex-shrink: 0; }
+
+  .block-separator {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+    opacity: 0.4;
+  }
+
+  /* Section headings inside schedule */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 20px 0 8px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .sidebar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .sidebar-card h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* PRIORITIES */
+  .priority-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+
+  .priority-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .priority-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    width: 100%;
+    padding: 4px 0;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .priority-input:focus { border-color: var(--accent); }
+  .priority-input::placeholder { color: var(--text-muted); font-size: 12px; }
+
+  /* MEAL LOG */
+  .meal-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .meal-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  .meal-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    flex: 1;
+    padding: 3px 0;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .meal-input:focus { border-color: var(--accent3); }
+  .meal-input::placeholder { color: var(--text-muted); font-size: 11px; }
+
+  /* BRAIN DUMP */
+  .brain-dump {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+
+  .brain-dump:focus { border-color: var(--accent); }
+  .brain-dump::placeholder { color: var(--text-muted); }
+
+  /* WORKOUT LOG */
+  .workout-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .workout-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    flex: 1;
+    padding: 3px 0;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .workout-input:focus { border-color: var(--accent4); }
+  .workout-input::placeholder { color: var(--text-muted); font-size: 11px; }
+
+  /* FOCUS MODE */
+  #focus-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #080a09;
+    z-index: 400;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  #focus-overlay.active { display: flex; }
+
+  #focus-block-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 8vw, 80px);
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  #focus-block-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  #focus-clock {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(60px, 14vw, 140px);
+    letter-spacing: 0.04em;
+    color: var(--text);
+    line-height: 1;
+    transition: color 0.5s;
+  }
+
+  .focus-divider {
+    width: 80px;
+    height: 1px;
+    background: var(--border);
+  }
+
+  #focus-task-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  #focus-task-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    text-align: center;
+    width: min(500px, 80vw);
+    padding: 8px 0;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  #focus-task-input:focus { border-color: var(--accent); }
+  #focus-task-input::placeholder { color: var(--text-muted); font-size: 14px; }
+
+  #focus-exit {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  #focus-exit:hover { border-color: var(--accent4); color: var(--accent4); }
+
+  /* NUDGE TOAST */
+  #nudge-toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--surface2);
+    border: 1px solid var(--accent3);
+    padding: 16px 20px;
+    max-width: 300px;
+    z-index: 600;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+
+  #nudge-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #nudge-toast .nudge-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #nudge-toast .nudge-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  #nudge-dismiss {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+    padding: 0;
+    display: block;
+    transition: color 0.2s;
+  }
+
+  #nudge-dismiss:hover { color: var(--accent3); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Stagger blocks */
+  .block:nth-child(1) { animation-delay: 0.03s; }
+  .block:nth-child(2) { animation-delay: 0.06s; }
+  .block:nth-child(3) { animation-delay: 0.09s; }
+  .block:nth-child(4) { animation-delay: 0.12s; }
+  .block:nth-child(5) { animation-delay: 0.15s; }
+  .block:nth-child(6) { animation-delay: 0.18s; }
+  .block:nth-child(7) { animation-delay: 0.21s; }
+  .block:nth-child(8) { animation-delay: 0.24s; }
+  .block:nth-child(9) { animation-delay: 0.27s; }
+  .block:nth-child(10) { animation-delay: 0.30s; }
+  .block:nth-child(11) { animation-delay: 0.33s; }
+  .block:nth-child(12) { animation-delay: 0.36s; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .day-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .day-btn { padding: 14px 4px; }
+    .day-btn .day-initial { font-size: 22px; }
+    .day-btn .tag { display: none; }
+
+    header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+    .header-left h1 { font-size: 22px; }
+    #current-day-label { font-size: 9px; }
+    .header-right { gap: 6px; flex-wrap: wrap; }
+    .btn { padding: 6px 10px; font-size: 9px; }
+    #live-clock { font-size: 11px; }
+    .save-indicator { display: none; }
+
+    main { grid-template-columns: 1fr; }
+    .schedule-col { padding: 16px; border-right: none; }
+    .sidebar { padding: 16px; border-top: 1px solid var(--border); }
+
+    .block { grid-template-columns: 70px 1fr; }
+    .block-time { font-size: 10px; padding: 12px 10px 12px 0; }
+    .block-content { padding: 12px 10px; }
+    .block-title { font-size: 13px; flex-wrap: wrap; }
+    .block.current-block::before { display: none; }
+
+    /* Block detail panel on mobile - show inline always */
+    .block-detail { font-size: 12px; }
+
+    /* Block expand panel */
+    .block-expand { display: block !important; }
+
+    #day-picker-overlay h1 { font-size: 48px; }
+    #day-picker-overlay p { font-size: 10px; }
+
+    #focus-block-name { font-size: 36px; }
+    #focus-clock { font-size: 72px; }
+    #focus-exit { top: 16px; right: 16px; padding: 6px 12px; font-size: 9px; }
+
+    #nudge-toast { bottom: 16px; right: 16px; left: 16px; max-width: none; }
+  }
+
+  @media (max-width: 400px) {
+    .day-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot.accent { background: var(--accent); }
+  .dot.accent2 { background: var(--accent2); }
+  .dot.accent3 { background: var(--accent3); }
+  .dot.accent4 { background: var(--accent4); }
+
+  .save-indicator {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .save-indicator.saved { color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<!-- DAY PICKER OVERLAY -->
+<div id="day-picker-overlay">
+  <div>
+    <h1>COMMAND</h1>
+    <p>Select today's day</p>
+  </div>
+  <div class="day-grid">
+    <button class="day-btn flex" onclick="selectDay('monday')">
+      <span class="day-initial">M</span>
+      <span>Mon</span>
+      <span class="tag">Flex</span>
+    </button>
+    <button class="day-btn office" onclick="selectDay('tuesday')">
+      <span class="day-initial">T</span>
+      <span>Tue</span>
+      <span class="tag">Office</span>
+    </button>
+    <button class="day-btn church" onclick="selectDay('wednesday')">
+      <span class="day-initial">W</span>
+      <span>Wed</span>
+      <span class="tag">Office+Church</span>
+    </button>
+    <button class="day-btn office" onclick="selectDay('thursday')">
+      <span class="day-initial">T</span>
+      <span>Thu</span>
+      <span class="tag">Office</span>
+    </button>
+    <button class="day-btn flex" onclick="selectDay('friday')">
+      <span class="day-initial">F</span>
+      <span>Fri</span>
+      <span class="tag">Flex</span>
+    </button>
+    <button class="day-btn weekend" onclick="selectDay('saturday')">
+      <span class="day-initial">S</span>
+      <span>Sat</span>
+      <span class="tag">Weekend</span>
+    </button>
+    <button class="day-btn church" onclick="selectDay('sunday')">
+      <span class="day-initial">S</span>
+      <span>Sun</span>
+      <span class="tag">Church</span>
+    </button>
+  </div>
+</div>
+
+<!-- FOCUS OVERLAY -->
+<div id="focus-overlay">
+  <button id="focus-exit" onclick="exitFocusMode()">✕ Exit Focus</button>
+  <div id="focus-block-name">DEEP WORK</div>
+  <div id="focus-block-time">9:00 AM – 9:45 AM</div>
+  <div class="focus-divider"></div>
+  <div id="focus-clock">00:00</div>
+  <div class="focus-divider"></div>
+  <div id="focus-task-label">What are you working on?</div>
+  <input id="focus-task-input" type="text" placeholder="Describe your single focus…" />
+  <button class="btn" onclick="exitFocusMode()">Mark Complete →</button>
+</div>
+
+<!-- NUDGE TOAST -->
+<div id="nudge-toast">
+  <div class="nudge-label"><span class="dot accent3"></span> Check-in nudge</div>
+  <div id="nudge-text" class="nudge-text"></div>
+  <button id="nudge-dismiss" onclick="dismissNudge()">Got it →</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <h1>COMMAND</h1>
+    <span id="current-day-label">Monday — Flex Day</span>
+  </div>
+  <div class="header-right">
+    <span id="live-clock">--:--</span>
+    <span class="save-indicator" id="save-indicator">autosave</span>
+    <button class="btn" id="nudge-toggle" onclick="toggleNudges()">Nudges: ON</button>
+    <button class="btn" id="focus-btn" onclick="enterFocusMode()">⊙ Focus Mode</button>
+    <button class="btn" onclick="showDayPicker()">↩ Change Day</button>
+  </div>
+</header>
+
+<div id="day-progress-bar"><div id="day-progress-fill" style="width:0%"></div></div>
+
+<!-- MAIN -->
+<main>
+  <div class="schedule-col" id="schedule-col">
+    <!-- Injected by JS -->
+  </div>
+
+  <div class="sidebar">
+    <!-- PRIORITIES -->
+    <div class="sidebar-card">
+      <h3>Today's 3 Priorities</h3>
+      <div class="priority-item">
+        <span class="priority-num">1</span>
+        <input class="priority-input" id="p1" type="text" placeholder="Write tonight…" />
+      </div>
+      <div class="priority-item">
+        <span class="priority-num">2</span>
+        <input class="priority-input" id="p2" type="text" placeholder="Write tonight…" />
+      </div>
+      <div class="priority-item">
+        <span class="priority-num">3</span>
+        <input class="priority-input" id="p3" type="text" placeholder="Write tonight…" />
+      </div>
+    </div>
+
+    <!-- MEAL LOG -->
+    <div class="sidebar-card">
+      <h3>Nutrition Log</h3>
+      <div class="meal-row">
+        <span class="meal-label">Morning</span>
+        <input class="meal-input" id="meal1" type="text" placeholder="e.g. salmon + eggs" />
+      </div>
+      <div class="meal-row">
+        <span class="meal-label">Midday</span>
+        <input class="meal-input" id="meal2" type="text" placeholder="e.g. chicken thighs + salad" />
+      </div>
+      <div class="meal-row">
+        <span class="meal-label">Evening</span>
+        <input class="meal-input" id="meal3" type="text" placeholder="e.g. bison + roasted veg" />
+      </div>
+      <div class="meal-row">
+        <span class="meal-label">Snacks</span>
+        <input class="meal-input" id="meal4" type="text" placeholder="e.g. DHA supplement, fruit" />
+      </div>
+    </div>
+
+    <!-- WORKOUT LOG -->
+    <div class="sidebar-card">
+      <h3>Evening Workout</h3>
+      <div class="workout-row">
+        <input class="workout-input" id="workout-type" type="text" placeholder="Type (e.g. walk, lift, bike)" />
+      </div>
+      <div class="workout-row">
+        <input class="workout-input" id="workout-duration" type="text" placeholder="Duration / notes" />
+      </div>
+    </div>
+
+    <!-- BRAIN DUMP -->
+    <div class="sidebar-card">
+      <h3>Brain Dump / Shutdown</h3>
+      <textarea class="brain-dump" id="brain-dump" placeholder="Clear your head — tasks, worries, ideas. Close the loop tonight."></textarea>
+    </div>
+  </div>
+</main>
+
+<script>
+// ─── SCHEDULE DATA ───────────────────────────────────────────────────────────
+
+const schedules = {
+  monday: {
+    label: 'Monday — Flex Day',
+    type: 'flex',
+    blocks: [
+      { time: '6:30', end: '7:00', title: 'Wake & Morning Routine', detail: 'Hydrate, hygiene, get dressed — 7am online', pill: null,
+        expand: [
+          { label: 'Purpose', value: 'Flex day — sleep in to 6:30. Still online by 7am with no problem.' },
+          { label: 'Actions', value: 'Large glass of water immediately. Hygiene. Get dressed — being dressed signals the day has started.', highlight: true },
+        ], tips: ['No phone for the first 10 minutes', '30 min is all you need before being at your desk'] },
+      { time: '7:00', end: '7:45', title: 'Morning Review & Intentions', detail: 'Online by 7am — review priorities, plan focus blocks', pill: 'review',
+        expand: [
+          { label: 'Purpose', value: 'Flex days give you time to do this right. Do it at your desk, online.' },
+          { label: 'Actions', value: 'Read yesterday\'s brain dump. Write your 3 priorities. Map them to focus blocks. Glance at calendar.', highlight: true },
+        ], tips: ['Keep it under 45 min', 'If priorities feel vague, make them smaller and more specific'] },
+      { time: '7:45', end: '8:30', title: 'Focus Block 1', detail: 'Garmin timer — single task only', pill: 'focus',
+        expand: [
+          { label: 'Purpose', value: 'Peak cognitive window. Protect it.' },
+          { label: 'Actions', value: 'Start Garmin timer. One task from Priority 1. Phone face down. No email.', highlight: true },
+        ], tips: ['If you catch yourself switching tasks, reset the Garmin', 'Discomfort means the work matters'] },
+      { time: '8:30', end: '8:45', title: 'Break', detail: 'Stand, hydrate, walk outside', pill: null,
+        expand: [{ label: 'Purpose', value: 'Cognitive reset between blocks. Don\'t skip.' }, { label: 'Actions', value: 'Stand up. Walk outside if possible. No screens.', highlight: true }] },
+      { time: '8:45', end: '9:30', title: 'Focus Block 2', detail: 'Garmin timer — single task only', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Continue momentum from Block 1.' }, { label: 'Actions', value: 'Same rules — one task, Garmin running, phone away.', highlight: true }] },
+      { time: '9:30', end: '10:00', title: 'Breakfast', detail: 'Clean meal — log in nutrition tracker', pill: 'meals',
+        expand: [
+          { label: 'Goal', value: 'Real food. No processed junk. Log it in the sidebar.' },
+          { label: 'Ideas', value: 'Salmon + eggs / chicken thighs + greens / bison bowl. DHA supplement with this meal.', highlight: true },
+        ] },
+      { time: '10:00', end: '10:45', title: 'Focus Block 3', detail: 'Garmin timer — deep work or learning', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Third block. Use for DevOps learning if priorities are clear.' }, { label: 'Actions', value: 'Terraform / Ansible / Git practice. Or Priority 2 work.', highlight: true }] },
+      { time: '10:45', end: '11:00', title: 'Break', detail: 'Walk, stretch, reset', pill: null,
+        expand: [{ label: 'Actions', value: 'Physical movement only. No reading, no scrolling.', highlight: true }] },
+      { time: '11:00', end: '12:00', title: 'Focus Block 4', detail: 'Extended block — project work or DevOps practice', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Final focused push before lunch.' }, { label: 'Actions', value: 'Infrastructure project, Terraform config, or Priority 3.', highlight: true }], tips: ['If energy dips, take a 5-min walk and resume'] },
+      { time: '12:00', end: '12:45', title: 'Lunch', detail: 'Real meal, no screens if possible', pill: 'meals',
+        expand: [{ label: 'Goal', value: 'Step away completely. Eat clean, log it, let your brain rest.' }, { label: 'Ideas', value: 'ButcherBox chicken / Wild Fork bison / homemade salad dressing.', highlight: true }] },
+      { time: '12:45', end: '2:00', title: 'Admin / Comms', detail: 'Email, Slack, scheduling, errands', pill: 'admin',
+        expand: [
+          { label: 'Purpose', value: 'Contained comms window. Everything administrative stays here.' },
+          { label: 'Actions', value: 'Clear inbox. Respond to anything pending. Handle scheduling. Then close email.', highlight: true },
+        ], tips: ['Set a timer — don\'t let this bleed into focus time', 'Done at 2:00 regardless'] },
+      { time: '2:00', end: '3:15', title: 'Focus Block 5 / Learning', detail: 'Terraform, Ansible, Git practice', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Afternoon learning block. Treat it as intentional, not leftover.' }, { label: 'Actions', value: 'VS Code open. Work through one concrete skill — not just reading.', highlight: true }] },
+      { time: '3:15', end: '3:45', title: 'Flex / Project Time', detail: 'Low-priority tasks, research, overflow', pill: null,
+        expand: [{ label: 'Purpose', value: 'Buffer for overflow or free exploration.' }, { label: 'Ideas', value: 'Preparedness planning, navigation study, budget review, home tasks.', highlight: true }] },
+      { time: '3:45', end: '4:00', title: 'Wrap-Up', detail: 'Clear desk, close loops — offline at 4pm', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Close all open tabs and tasks. Note anything unfinished. Done at 4pm sharp.', highlight: true }] },
+      { time: '4:00', end: '5:30', title: 'Dinner & Decompress', detail: 'Cook, eat clean, no work', pill: 'meals',
+        expand: [{ label: 'Purpose', value: 'Transition out of work mode. Cooking is part of the decompression.' }, { label: 'Actions', value: 'Log dinner in nutrition sidebar. No work talk.', highlight: true }] },
+      { time: '5:30', end: '6:30', title: 'Evening Workout', detail: 'Walk, lift, or bike — log activity', pill: 'workout',
+        expand: [{ label: 'Purpose', value: 'Physical reset after a full desk day.' }, { label: 'Actions', value: 'Log type and duration in the sidebar. Garmin tracks steps/calories.', highlight: true }], tips: ['Even a 30-min walk counts', 'Don\'t skip — this protects your cardiovascular health'] },
+      { time: '6:30', end: '9:30', title: 'Evening Unwind', detail: 'TV / study / reading — your call', pill: null,
+        expand: [
+          { label: 'Purpose', value: 'Real rest. But intentional rest.' },
+          { label: 'If shows to catch up on', value: 'Watch — be present, enjoy it. No guilt.', highlight: true },
+          { label: 'If no shows', value: 'DevOps study or reading. Pick one before this block starts so you don\'t default to scrolling.', highlight: true },
+        ], tips: ['Decide the mode before you sit down', 'Avoid open-ended browsing as a substitute for both'] },
+      { time: '10:00', end: '10:30', title: 'Brain Dump & Shutdown', detail: 'Write tomorrow\'s 3 priorities, clear head, close loops', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Write 3 priorities for tomorrow in the sidebar. Dump anything unresolved from today. Close the laptop.', highlight: true }, { label: 'Keep Review (5 min)', value: 'Open Google Keep. Scan every open item. Action it, schedule it, or delete it. Nothing sits without a decision.', highlight: true }], tips: ['This is how tomorrow\'s morning review gets easy', 'Don\'t skip this — it\'s where the system compounds'] },
+      { time: '10:30', end: '11:00', title: 'Wind Down', detail: 'Low light, no screens — let your brain downshift', pill: null,
+        expand: [{ label: 'Actions', value: 'Dim lights. No screens. Give yourself 30 min to wind down naturally before 11.', highlight: true }], tips: ['Even if not tired, the routine trains the body over time'] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Lights out at 11:00', pill: null,
+        expand: [{ label: 'Rule', value: '11:00 is the line. Phone face down, stays there. You get 7.5h tonight — protect it.', highlight: true }] },
+    ]
+  },
+  tuesday: {
+    label: 'Tuesday — Office Day',
+    type: 'office',
+    blocks: [
+      { time: '5:00', end: '5:45', title: 'Wake & Rapid Routine', detail: 'Hydrate, hygiene, coffee to go', pill: null,
+        expand: [{ label: 'Purpose', value: 'Office days are early — keep this tight.' }, { label: 'Actions', value: 'Water immediately. Hygiene. Coffee prepped. Bag ready the night before.', highlight: true }], tips: ['No phone until you\'re fully dressed'] },
+      { time: '5:45', end: '6:30', title: 'Commute', detail: 'Depart 5:45 — arrive ~6:30 (45 min drive)', pill: null,
+        expand: [{ label: 'Options', value: 'Silence and mental prep / DevOps podcast / worship or motivation. Not news or social media.', highlight: true }] },
+      { time: '6:30', end: '7:00', title: 'Arrive & Morning Review', detail: 'At the office: review 3 priorities, set intentions for the day', pill: 'review',
+        expand: [
+          { label: 'Purpose', value: 'No time at home — this is your review window. Do it at your desk before touching anything else.' },
+          { label: 'Actions', value: 'Read last night\'s brain dump. Confirm your 3 priorities. Block focus time on calendar.', highlight: true },
+        ], tips: ['Don\'t open email yet', 'This takes 20-30 min max'] },
+      { time: '7:00', end: '7:45', title: 'Focus Block 1', detail: 'Garmin timer — highest-priority task', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Garmin starts. Priority 1 only. No email. No Slack.', highlight: true }] },
+      { time: '7:45', end: '8:00', title: 'Break', detail: 'Walk the floor, hydrate', pill: null,
+        expand: [{ label: 'Actions', value: 'Physical movement. Step away from screen.', highlight: true }] },
+      { time: '8:00', end: '8:45', title: 'Focus Block 2', detail: 'Garmin timer — deep work', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Same rules. One task. Clock running.', highlight: true }] },
+      { time: '8:45', end: '9:15', title: 'Comms & Admin', detail: 'Email, Slack, quick responses only', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Open email and Slack. Respond, action, archive. Close again at 9:15.', highlight: true }], tips: ['Not a rabbit hole — 30 min max'] },
+      { time: '9:15', end: '10:00', title: 'Focus Block 3', detail: 'Garmin timer — project work', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Third block. Slightly lower energy — good for Priority 2 or structured work.', highlight: true }] },
+      { time: '10:00', end: '10:15', title: 'Break / Stretch', detail: 'Move, hydrate, step outside if possible', pill: null,
+        expand: [{ label: 'Actions', value: 'Stand, walk, stretch. No screens.', highlight: true }] },
+      { time: '10:15', end: '11:15', title: 'Meetings / Collab', detail: 'Office hours, team sync, standup', pill: 'admin',
+        expand: [{ label: 'Purpose', value: 'Social and collaborative work. Keep it productive.' }, { label: 'Actions', value: 'Come prepared. Take notes. Follow up immediately after.', highlight: true }] },
+      { time: '11:15', end: '12:00', title: 'Focus Block 4', detail: 'Last focused push before lunch', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Final morning block. Tie off Priority 1 or advance Priority 2.', highlight: true }] },
+      { time: '12:00', end: '12:45', title: 'Lunch', detail: 'Away from desk — real break', pill: 'meals',
+        expand: [{ label: 'Purpose', value: 'Actual break. Not a working lunch.' }, { label: 'Actions', value: 'Step away. Log what you\'re eating. Rest your eyes.', highlight: true }] },
+      { time: '12:45', end: '2:00', title: 'Focus Block 5 / Project', detail: 'Sustained afternoon work', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Afternoon energy dip is real — use structured tasks, not creative ones. Documentation, configuration, review.', highlight: true }] },
+      { time: '2:00', end: '3:00', title: 'Admin / Wrap Tasks', detail: 'Loose ends, follow-ups, documentation — wrap by 3pm', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Clear the day\'s action items. Follow up on anything from meetings. Note what didn\'t get done. Out the door at 3.', highlight: true }] },
+      { time: '3:00', end: '4:00', title: 'Commute Home', detail: 'Depart ~3:00 PM — arrive ~4:00 PM (1 hr drive)', pill: null,
+        expand: [{ label: 'Options', value: 'Decompress mentally. Podcast, music, or silence. Leave work at work.', highlight: true }] },
+      { time: '4:00', end: '5:00', title: 'Decompress / Transition', detail: 'Change, short walk, leave work at work', pill: null,
+        expand: [{ label: 'Actions', value: 'Change clothes — this signals the transition physically. Short walk if possible.', highlight: true }] },
+      { time: '5:00', end: '6:00', title: 'Dinner', detail: 'Cook clean meal, log nutrition', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Cook at home. Log in sidebar. No work screens during dinner.', highlight: true }] },
+      { time: '6:00', end: '9:00', title: '📖 Men\'s Bible Study (Apr)', detail: 'Depart 6:00 PM — home ~9:00 PM (through end of April)', pill: 'church',
+        expand: [
+          { label: 'Schedule Note', value: 'Active through end of April. Replaces evening workout and unwind time on Tuesdays.', highlight: true },
+          { label: 'Workout', value: 'Move workout to lunch break if possible, or accept the skip for Tuesday — Bible study is the priority.' },
+        ], tips: ['Prep anything needed (Bible, notes) before leaving', 'Don\'t try to squeeze workout in after — it\'ll be 9pm'] },
+      { time: '9:30', end: '10:30', title: 'Brain Dump & Shutdown', detail: 'Write tomorrow\'s 3 priorities, clear head', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Quick version tonight — you\'re home late. Write 3 priorities for Wednesday. Brain dump anything floating.', highlight: true }, { label: 'Keep Review (5 min)', value: 'Open Google Keep. Scan every open item. Action it, schedule it, or delete it. Nothing sits without a decision.', highlight: true }], tips: ['Keep it under 20 min — you need sleep'] },
+      { time: '10:30', end: '11:00', title: 'Wind Down', detail: 'Low light, no screens', pill: null,
+        expand: [{ label: 'Actions', value: 'Devices dimmed. Low light. Give your brain 30 min to wind down before 11.', highlight: true }] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Lights out at 11:00', pill: null,
+        expand: [{ label: 'Rule', value: 'Late night on Tuesdays — 11pm is the firm line. Wednesday starts at 4:30.', highlight: true }] },
+    ]
+  },
+  wednesday: {
+    label: 'Wednesday — Office + Church',
+    type: 'church',
+    blocks: [
+      { time: '5:00', end: '5:45', title: 'Wake & Rapid Routine', detail: 'Hydrate, hygiene, coffee to go', pill: null,
+        expand: [{ label: 'Actions', value: 'Keep it tight — same as Tuesday. Bag ready. Coffee to go.', highlight: true }] },
+      { time: '5:45', end: '6:30', title: 'Commute', detail: 'Depart 5:45 — arrive ~6:30 (45 min drive)', pill: null,
+        expand: [{ label: 'Options', value: 'Podcast, silence, or worship music. Church night — set a good tone.', highlight: true }] },
+      { time: '6:30', end: '7:00', title: 'Arrive & Morning Review', detail: 'At the office: review priorities, set church role reminder if needed', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Morning review at desk. Also check: are you serving in security tonight? Prep reminder.', highlight: true }] },
+      { time: '7:00', end: '7:45', title: 'Focus Block 1', detail: 'Garmin timer — highest-priority task', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Priority 1. Garmin on. No interruptions.', highlight: true }] },
+      { time: '7:45', end: '8:00', title: 'Break', detail: 'Walk, hydrate', pill: null,
+        expand: [{ label: 'Actions', value: 'Stand and move. Screens off.', highlight: true }] },
+      { time: '8:00', end: '8:45', title: 'Focus Block 2', detail: 'Garmin timer', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Clock running. Single task.', highlight: true }] },
+      { time: '8:45', end: '9:15', title: 'Comms & Admin', detail: 'Email, Slack — keep it contained', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Email and Slack — respond, action, close. 30 min max.', highlight: true }] },
+      { time: '9:15', end: '10:00', title: 'Focus Block 3', detail: 'Garmin timer', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Third block — Priority 2 or structured tasks.', highlight: true }] },
+      { time: '10:00', end: '10:15', title: 'Break', detail: 'Move, hydrate', pill: null,
+        expand: [{ label: 'Actions', value: 'Step away. No screens.', highlight: true }] },
+      { time: '10:15', end: '11:15', title: 'Meetings / Collab', detail: 'Team sync, admin', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Meetings, standups, collaborative work. Come prepared.', highlight: true }] },
+      { time: '11:15', end: '12:00', title: 'Focus Block 4', detail: 'Last focused morning block', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Church night means day wraps early — make this count.', highlight: true }] },
+      { time: '12:00', end: '12:45', title: 'Lunch', detail: 'Away from desk', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Real break. Log meal in sidebar.', highlight: true }] },
+      { time: '12:45', end: '2:00', title: 'Focus Block 5 / Wrap', detail: 'Afternoon work — wrap up by 3pm', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Church night means earlier shutdown — get everything done.' }, { label: 'Actions', value: 'Prioritize wrap tasks. Avoid starting new complex work.', highlight: true }] },
+      { time: '2:00', end: '3:00', title: 'Admin & Handoff', detail: 'Close loops — out the door by 3pm', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Follow-ups, documentation, anything pending. Hand off anything that needs catching tomorrow. Leave at 3.', highlight: true }] },
+      { time: '3:00', end: '4:00', title: 'Commute Home', detail: 'Depart 3:00 PM — arrive ~4:00 PM (1 hr drive)', pill: null,
+        expand: [{ label: 'Actions', value: 'Mental transition. Leave the office at the office.', highlight: true }] },
+      { time: '4:00', end: '5:00', title: 'Decompress & Dinner', detail: 'Quick clean meal, change clothes', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Change clothes. Quick clean meal. Log nutrition. Church in ~2 hours.', highlight: true }] },
+      { time: '5:00', end: '6:00', title: 'Evening Workout (Early)', detail: 'Shorter session — must be done before church', pill: 'workout',
+        expand: [{ label: 'Purpose', value: 'Wednesdays require an early workout to fit before church.' }, { label: 'Actions', value: 'Walk or lighter session. Log it. Be done by 6:00.', highlight: true }] },
+      { time: '6:00', end: '6:30', title: 'Church Buffer / Prep', detail: 'Review security role if serving, transition prep', pill: 'church',
+        expand: [{ label: 'Actions', value: 'Check if you\'re on security. Grab anything needed. Mental shift into church mode.', highlight: true }] },
+      { time: '6:30', end: '9:00', title: 'Church', detail: 'Present and committed — security role if scheduled', pill: 'church',
+        expand: [{ label: 'Purpose', value: 'This is committed time. Be fully present.' }, { label: 'Security role', value: 'If serving: arrive with awareness, debrief mentally after.', highlight: true }] },
+      { time: '9:30', end: '10:30', title: 'Brain Dump & Shutdown', detail: 'Brief — keep it quick on church nights', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Brief version. Write Thursday\'s 3 priorities. Quick brain dump. Sleep matters tonight.', highlight: true }, { label: 'Keep Review (5 min)', value: 'Open Google Keep. Scan every open item. Action it, schedule it, or delete it. Nothing sits without a decision.', highlight: true }] },
+      { time: '10:30', end: '11:00', title: 'Wind Down', detail: 'Low light, no screens', pill: null,
+        expand: [{ label: 'Actions', value: 'Quiet transition to sleep. No phone. Dim everything.', highlight: true }] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Lights out at 11:00', pill: null,
+        expand: [{ label: 'Rule', value: 'Hard stop. Phone down. Thursday starts early.', highlight: true }] },
+    ]
+  },
+  thursday: {
+    label: 'Thursday — Office Day',
+    type: 'office',
+    blocks: [
+      { time: '5:00', end: '5:45', title: 'Wake & Rapid Routine', detail: 'Hydrate, hygiene, coffee to go', pill: null,
+        expand: [{ label: 'Actions', value: 'Same as Tuesday. Tight and intentional.', highlight: true }] },
+      { time: '5:45', end: '6:30', title: 'Commute', detail: 'Depart 5:45 — arrive ~6:30 (45 min drive)', pill: null,
+        expand: [{ label: 'Options', value: 'Podcast, silence, or music. No news anxiety first thing.', highlight: true }] },
+      { time: '6:30', end: '7:00', title: 'Arrive & Morning Review', detail: 'At the office: review 3 priorities, plan the day', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Desk first. Read brain dump. Confirm priorities. Don\'t open email yet.', highlight: true }] },
+      { time: '7:00', end: '7:45', title: 'Focus Block 1', detail: 'Garmin timer — highest-priority task', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Garmin on. Priority 1. No distractions.', highlight: true }] },
+      { time: '7:45', end: '8:00', title: 'Break', detail: 'Walk, hydrate', pill: null,
+        expand: [{ label: 'Actions', value: 'Physical movement. Screens off.', highlight: true }] },
+      { time: '8:00', end: '8:45', title: 'Focus Block 2', detail: 'Garmin timer — deep work', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Clock running. One task.', highlight: true }] },
+      { time: '8:45', end: '9:15', title: 'Comms & Admin', detail: 'Email, Slack', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Email and Slack — contain it to 30 min.', highlight: true }] },
+      { time: '9:15', end: '10:00', title: 'Focus Block 3', detail: 'Garmin timer', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Third block. Priority 2 or structured tasks.', highlight: true }] },
+      { time: '10:00', end: '10:15', title: 'Break', detail: 'Move, reset', pill: null,
+        expand: [{ label: 'Actions', value: 'Stand, walk, stretch.', highlight: true }] },
+      { time: '10:15', end: '11:15', title: 'Meetings / Collab', detail: 'Office hours, team sync', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Meetings and collaboration. Prep beforehand, take notes after.', highlight: true }] },
+      { time: '11:15', end: '12:00', title: 'Focus Block 4', detail: 'Final morning block', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Last push before lunch. Close out Priority 1 or 2.', highlight: true }] },
+      { time: '12:00', end: '12:45', title: 'Lunch', detail: 'Away from desk', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Real break. Log meal. Eyes off screen.', highlight: true }] },
+      { time: '12:45', end: '2:00', title: 'Focus Block 5 / DevOps', detail: 'Terraform / Ansible / Git practice or project', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Thursday afternoon is a good DevOps slot — you\'re in a rhythm.' }, { label: 'Actions', value: 'VS Code open. One specific skill or task. Not just reading docs.', highlight: true }] },
+      { time: '2:00', end: '3:00', title: 'Admin & End-of-Week Prep', detail: 'Loose ends, set up for Friday — out by 3pm', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Wrap loose ends. Prep anything carrying into Friday. Think ahead. Leave at 3.', highlight: true }] },
+      { time: '3:00', end: '4:00', title: 'Commute Home', detail: 'Depart 3:00 PM — arrive ~4:00 PM (1 hr drive)', pill: null,
+        expand: [{ label: 'Actions', value: 'Decompress. Mental transition to home mode.', highlight: true }] },
+      { time: '4:00', end: '5:00', title: 'Decompress / Transition', detail: 'Change, walk, leave work behind', pill: null,
+        expand: [{ label: 'Actions', value: 'Change clothes. Short walk. No work from here.', highlight: true }] },
+      { time: '5:00', end: '6:00', title: 'Dinner', detail: 'Cook clean meal, log nutrition', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Home cook. Log it in sidebar. DHA supplement.', highlight: true }] },
+      { time: '6:00', end: '7:00', title: 'Evening Workout', detail: 'Walk, lift, or bike', pill: 'workout',
+        expand: [{ label: 'Actions', value: 'Log type and duration. Garmin tracks the rest.', highlight: true }] },
+      { time: '7:00', end: '9:30', title: 'Evening Unwind', detail: 'TV / study / reading — your call', pill: null,
+        expand: [
+          { label: 'Purpose', value: 'Real rest. Intentional rest.' },
+          { label: 'If shows to catch up on', value: 'Watch — enjoy it fully. No guilt.', highlight: true },
+          { label: 'If no shows', value: 'DevOps study or book. Decide before you sit down so you don\'t default to scrolling.', highlight: true },
+        ], tips: ['Pick the mode before the block starts', 'No open-ended browsing'] },
+      { time: '10:00', end: '10:30', title: 'Brain Dump & Shutdown', detail: 'Write Friday\'s priorities, clear head', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Write Friday\'s 3 priorities. Brain dump. Close the laptop. Done.', highlight: true }, { label: 'Keep Review (5 min)', value: 'Open Google Keep. Scan every open item. Action it, schedule it, or delete it. Nothing sits without a decision.', highlight: true }] },
+      { time: '10:30', end: '11:00', title: 'Wind Down', detail: 'Low light, no screens', pill: null,
+        expand: [{ label: 'Actions', value: 'Dim lights. No screens. 30 min to downshift before 11.', highlight: true }] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Lights out at 11:00', pill: null,
+        expand: [{ label: 'Rule', value: 'Phone face down. Non-negotiable.', highlight: true }] },
+    ]
+  },
+  friday: {
+    label: 'Friday — Flex Day',
+    type: 'flex',
+    blocks: [
+      { time: '6:30', end: '7:00', title: 'Wake & Morning Routine', detail: 'Hydrate, hygiene — 7am online', pill: null,
+        expand: [{ label: 'Actions', value: 'Flex day sleep-in. Online by 7am — 30 min is all you need.', highlight: true }] },
+      { time: '7:00', end: '7:45', title: 'Morning Review & Weekly Retrospective', detail: 'Online at 7am — review priorities + quick weekly look-back', pill: 'review',
+        expand: [
+          { label: 'Purpose', value: 'End-of-week review. What landed? What didn\'t? What follows into next week?' },
+          { label: 'Actions', value: 'Write today\'s 3 priorities. Brief weekly retro — what worked, what slipped, what to carry forward.', highlight: true },
+          { label: 'System check', value: 'Did you do Keep reviews this week? If notes piled up elsewhere (Samsung Notes, texts to yourself), move them into Keep now and delete the originals.', highlight: true },
+        ], tips: ['10 min on retro max — don\'t over-analyze', 'One capture point only — if it\'s not in Keep, move it or lose it'] },
+      { time: '7:45', end: '8:30', title: 'Focus Block 1', detail: 'Garmin timer — top priority', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Priority 1. Garmin on. Same rules as all week.', highlight: true }] },
+      { time: '8:30', end: '8:45', title: 'Break', detail: 'Hydrate, move', pill: null,
+        expand: [{ label: 'Actions', value: 'Step outside if possible. No screens.', highlight: true }] },
+      { time: '8:45', end: '9:30', title: 'Focus Block 2', detail: 'Garmin timer — DevOps learning or project', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Friday morning is a great DevOps slot — fresh brain, no pressure.', highlight: true }] },
+      { time: '9:30', end: '10:00', title: 'Breakfast', detail: 'Clean meal, log nutrition', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Eat well. Log it. DHA supplement.', highlight: true }] },
+      { time: '10:00', end: '11:00', title: 'Focus Block 3', detail: 'Garmin timer', pill: 'focus',
+        expand: [{ label: 'Actions', value: 'Priority 2 or continued DevOps work.', highlight: true }] },
+      { time: '11:00', end: '12:00', title: 'Admin / Planning + Weekly Keep Purge', detail: 'Next week prep, YNAB check, and full Keep cleanup', pill: 'admin',
+        expand: [{ label: 'Purpose', value: 'Set up next week to run smoothly. This is also your weekly system reset.' }, { label: 'Admin Actions', value: 'YNAB check, next week tasks, anything pending. Review budget categories.', highlight: true }, { label: 'Weekly Keep Purge (10 min)', value: 'Open Google Keep. Anything older than 7 days gets decided on right now — schedule it, action it, or delete it. Nothing carries over without a reason.', highlight: true }], tips: ['This is what stops accumulation from building back up', 'If it\'s been in Keep a week and you haven\'t touched it, be honest about whether it matters'] },
+      { time: '12:00', end: '12:45', title: 'Lunch & Decompression', detail: 'Noon break — step away, eat clean', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Real meal. Log it. Step away from the screen — genuine break.', highlight: true }] },
+      { time: '12:45', end: '2:00', title: 'Focus Block 4 / Learning', detail: 'Extended block — Terraform, Git, or infrastructure project', pill: 'focus',
+        expand: [{ label: 'Purpose', value: 'Longer uninterrupted window for serious skill-building.' }, { label: 'Actions', value: 'One concrete task or chapter. Build something — don\'t just read.', highlight: true }] },
+      { time: '2:00', end: '3:30', title: 'Flex / Errands / Prep', detail: 'Groceries, ButcherBox/Wild Fork pick-up, errands', pill: null,
+        expand: [{ label: 'Ideas', value: 'Wild Fork Mission Viejo run / ButcherBox delivery day / grocery run / home tasks / preparedness planning.', highlight: true }] },
+      { time: '3:30', end: '3:45', title: 'Wrap-Up', detail: 'Final tasks, system reset — offline at 4pm', pill: 'admin',
+        expand: [{ label: 'Actions', value: 'Close open loops. Set up Monday. Clear the week\'s notes. Done at 4pm.', highlight: true }] },
+      { time: '4:00', end: '5:30', title: 'Dinner & Unwind', detail: 'Cook, eat clean, transition to weekend mode', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Cook something good. Log it. Transition out of work mode fully.', highlight: true }] },
+      { time: '5:30', end: '6:30', title: 'Evening Workout', detail: 'Walk, lift, or bike — start the weekend right', pill: 'workout',
+        expand: [{ label: 'Actions', value: 'End the week strong physically. Log it in sidebar.', highlight: true }] },
+      { time: '6:30', end: '10:00', title: 'Evening Unwind', detail: 'TV / study / reading — fully off-duty', pill: null,
+        expand: [
+          { label: 'Purpose', value: 'Weekend starts here. Real rest.' },
+          { label: 'If shows to catch up on', value: 'Watch — present, enjoy it.', highlight: true },
+          { label: 'If no shows', value: 'Book or light learning. Decide before you sit down.', highlight: true },
+        ], tips: ['Fully off-duty on Fridays — no guilt about rest'] },
+      { time: '10:30', end: '11:00', title: 'Wind Down', detail: 'Low light, no screens — ease into the weekend', pill: null,
+        expand: [{ label: 'Actions', value: 'No work, no phone. Dim everything. Friday nights can go a little later — but stay honest.', highlight: true }] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Weekend starts with good sleep.', pill: null,
+        expand: [{ label: 'Rule', value: 'Phone down at 11. Saturday sleep-in only works if you actually sleep.', highlight: true }] },
+    ]
+  },
+  saturday: {
+    label: 'Saturday — Sleep-In Day',
+    type: 'weekend',
+    blocks: [
+      { time: '9:00', end: '10:00', title: 'Natural Wake & Slow Morning', detail: 'Sleep in — target 9:00 AM. No alarm if possible.', pill: null,
+        expand: [{ label: 'Purpose', value: 'This is your sleep debt recovery day. Protect it. Don\'t set an alarm unless absolutely necessary.' }, { label: 'Actions', value: 'Water. Coffee. Quiet. No phone for the first 30 minutes.', highlight: true }], tips: ['If you wake earlier, stay in bed and rest', 'No guilt about sleeping in — this is the plan'] },
+      { time: '10:00', end: '10:30', title: 'Light Morning Review', detail: 'Loose intentions — not a work review', pill: 'review',
+        expand: [{ label: 'Purpose', value: 'Just a loose sense of what today looks like. One or two intentions max.' }, { label: 'Actions', value: 'No priorities list — that\'s a weekday thing. Just a loose plan.', highlight: true }] },
+      { time: '10:30', end: '11:30', title: 'Breakfast', detail: 'Slower, real food — take your time', pill: 'meals',
+        expand: [{ label: 'Ideas', value: 'Wild-caught salmon and eggs / bison hash / whatever sounds good. Log it. DHA supplement.', highlight: true }] },
+      { time: '11:30', end: '2:00', title: 'Personal Projects / Hobbies', detail: 'Preparedness, navigation, reading, home', pill: null,
+        expand: [{ label: 'Ideas', value: 'Navigation/map study / preparedness planning / home projects / reading / outdoor time.', highlight: true }], tips: ['No work projects — genuinely personal time'] },
+      { time: '2:00', end: '3:00', title: 'Lunch', detail: 'Real meal, log nutrition', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Real meal. Log it in sidebar.', highlight: true }] },
+      { time: '3:00', end: '5:30', title: 'Free Time / Errands', detail: 'Unstructured — recharge fully', pill: null,
+        expand: [{ label: 'Purpose', value: 'Nothing to prove here. Rest is productive.' }, { label: 'Ideas', value: 'Walk, drive, errands, outdoor time, nothing in particular.', highlight: true }] },
+      { time: '5:30', end: '7:00', title: 'Dinner', detail: 'Cook at home, try something different', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Home cooked. Log it. Experiment a bit on Saturdays.', highlight: true }] },
+      { time: '7:00', end: '8:00', title: 'Evening Workout or Walk', detail: 'Light movement — active recovery', pill: 'workout',
+        expand: [{ label: 'Purpose', value: 'Active recovery — not a hard session.' }, { label: 'Actions', value: 'Walk, stretch, light bike. Log it.', highlight: true }] },
+      { time: '8:00', end: '10:30', title: 'Evening Unwind', detail: 'TV / study / reading — fully present', pill: null,
+        expand: [
+          { label: 'If shows to catch up on', value: 'Watch — enjoy it.', highlight: true },
+          { label: 'If no shows', value: 'Reading or light learning. Decide before you sit down.', highlight: true },
+        ] },
+      { time: '10:30', end: '11:00', title: 'Brain Dump', detail: 'Light — clear head before Sunday', pill: 'review',
+        expand: [{ label: 'Actions', value: 'Light version. Clear anything floating. Remember: church is 5am tomorrow.', highlight: true }], tips: ['Church is early tomorrow — don\'t stay up past 11'] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Church is at 5:00 AM tomorrow.', pill: null,
+        expand: [{ label: 'Rule', value: 'Hard stop at 11. Sunday morning is your earliest day — protect it.', highlight: true }] },
+    ]
+  },
+  sunday: {
+    label: 'Sunday — Church & Prep Day',
+    type: 'church',
+    blocks: [
+      { time: '5:00', end: '5:40', title: 'Wake & Rapid Prep', detail: 'Earliest day of the week — out the door by 5:40', pill: null,
+        expand: [{ label: 'Purpose', value: 'Volunteer setup starts at 6am sharp. No margin here.' }, { label: 'Actions', value: 'Water immediately. Hygiene. Dressed. Coffee to go. Bag ready the night before.', highlight: true }], tips: ['Lay clothes out Saturday night', 'No phone scrolling — you have 40 minutes flat'] },
+      { time: '5:40', end: '6:00', title: 'Commute to Church', detail: 'Depart 5:40 — arrive for 6:00 AM setup', pill: null,
+        expand: [{ label: 'Actions', value: 'Short drive. Arrive with a minute to spare.', highlight: true }] },
+      { time: '6:00', end: '7:30', title: 'Volunteer Setup', detail: 'Setup crew — in place at 6:00 AM sharp', pill: 'church',
+        expand: [{ label: 'Purpose', value: 'This is service. Show up ready and present.' }, { label: 'Actions', value: 'Setup duties. Know your role. Be fully engaged.', highlight: true }] },
+      { time: '7:30', end: '8:40', title: '7:30 AM Service', detail: 'Attend service — done by 8:40', pill: 'church',
+        expand: [{ label: 'Purpose', value: 'Be present. This is why you\'re here.' }, { label: 'Actions', value: 'Security role if serving. Fully engaged — not planning the week in your head.', highlight: true }] },
+      { time: '8:40', end: '10:00', title: 'Grocery Store', detail: 'Stop on the way home — weekly grocery run', pill: 'admin',
+        expand: [{ label: 'Purpose', value: 'You\'re already out. Knock it out before you get comfortable at home.' }, { label: 'Actions', value: 'Work the list. Wild Fork Mission Viejo if needed. ButcherBox delivery check when home.', highlight: true }], tips: ['Have the grocery list ready before you leave church', 'In and out — don\'t browse'] },
+      { time: '10:00', end: '11:30', title: 'Home, Groceries Away & Breakfast', detail: 'Transition to home mode — eat a real meal', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Put groceries away. Real breakfast. Log nutrition. DHA supplement. You\'ve done a full morning before most people are awake.', highlight: true }] },
+      { time: '11:30', end: '1:30', title: 'Free Time / Rest', detail: 'Unstructured — you\'ve earned it', pill: null,
+        expand: [{ label: 'Purpose', value: 'Up since 5am. Rest is appropriate here and intentional.' }, { label: 'Ideas', value: 'Reading, light nap, hobby, outdoor time, time with your wife.', highlight: true }] },
+      { time: '1:30', end: '2:30', title: 'Lunch', detail: 'Real meal — log nutrition', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Clean meal. Log it in sidebar.', highlight: true }] },
+      { time: '2:30', end: '4:30', title: 'Week Prep', detail: 'Meal prep, YNAB check, lay out Monday plan', pill: 'admin',
+        expand: [
+          { label: 'Purpose', value: 'This is the productive window Sunday gets. Make it count.' },
+          { label: 'Actions', value: 'YNAB categories check / meal prep for the week / Monday plan rough draft / any remaining loose ends.', highlight: true },
+        ], tips: ['2 hours max', 'Sunday prep = Monday momentum'] },
+      { time: '4:30', end: '6:30', title: 'Rest / Hobby / Personal', detail: 'Decompress — no pressure', pill: null,
+        expand: [{ label: 'Purpose', value: 'Early start earns a real afternoon.' }, { label: 'Ideas', value: 'Navigation study / preparedness / time with your wife / anything you enjoy.', highlight: true }] },
+      { time: '6:30', end: '8:00', title: 'Dinner', detail: 'Cook clean — set the week\'s tone', pill: 'meals',
+        expand: [{ label: 'Actions', value: 'Cook well. Log it. This meal sets the tone for the week.', highlight: true }] },
+      { time: '8:00', end: '9:00', title: 'Light Walk or Stretch', detail: 'Active recovery before the work week', pill: 'workout',
+        expand: [{ label: 'Actions', value: 'Walk, stretch, or light activity. Gets the body ready for the week.', highlight: true }] },
+      { time: '9:00', end: '10:30', title: 'Evening Unwind', detail: 'TV / study / reading — rest fully', pill: null,
+        expand: [
+          { label: 'If shows to catch up on', value: 'Watch — present and enjoying it.', highlight: true },
+          { label: 'If no shows', value: 'Reading or light study. Decide before you sit down.', highlight: true },
+        ] },
+      { time: '10:30', end: '11:00', title: 'Brain Dump & Week Setup', detail: 'Write Monday\'s 3 priorities — sets the whole week', pill: 'review',
+        expand: [{ label: 'Purpose', value: 'The most important brain dump of the week.' }, { label: 'Actions', value: 'Write Monday\'s 3 priorities in the sidebar. Brain dump anything floating. Close the loop.', highlight: true }, { label: 'Keep Review (5 min)', value: 'Open Google Keep. Scan every open item. Action it, schedule it, or delete it. Nothing sits without a decision.', highlight: true }], tips: ['This is what makes Monday morning not chaotic', 'Don\'t skip it'] },
+      { time: '11:00', end: '11:00', title: '⚠ Screen Alarm', detail: 'Devices down. Monday starts at 5:00 AM.', pill: null,
+        expand: [{ label: 'Rule', value: 'You were up at 5am today. Get the sleep. Phone down at 11.', highlight: true }] },
+    ]
+  }
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentDay = null;
+let nudgesEnabled = true;
+let nudgeInterval = null;
+let focusActive = false;
+let focusClockInterval = null;
+let focusStart = null;
+
+const nudgeMessages = [
+  "Are you still on this block? Or did you drift somewhere?",
+  "Quick check: is what you're doing right now on your schedule?",
+  "Brain check-in. Is this the highest-priority thing you should be doing?",
+  "Are you in a focus block or a distraction? Be honest.",
+  "10 seconds: What were you supposed to be doing? Are you doing it?",
+  "Phones down. Head up. Back to the block.",
+  "You defined your 3 priorities. Are any of them happening right now?",
+  "This is your system checking in. All good — or drift happened?",
+  "Close the browser tab you shouldn't have open. You know the one.",
+  "Gut check: productive or procrastinating? Adjust and continue.",
+];
+
+// ─── DAY PICKER ──────────────────────────────────────────────────────────────
+function selectDay(day) {
+  currentDay = day;
+  document.getElementById('day-picker-overlay').style.display = 'none';
+  renderSchedule(day);
+  updateClock();
+  startNudges();
+  loadStorage();
+}
+
+function showDayPicker() {
+  document.getElementById('day-picker-overlay').style.display = 'flex';
+  saveStorage();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderSchedule(day) {
+  const data = schedules[day];
+  document.getElementById('current-day-label').textContent = data.label;
+
+  const col = document.getElementById('schedule-col');
+  const badgeClass = data.type;
+  const badgeLabels = { flex: 'Flex Day', office: 'Office Day', church: 'Office + Church', weekend: 'Weekend' };
+
+  let html = `<div class="day-type-badge ${badgeClass}"><span class="dot ${badgeClass === 'office' ? 'accent2' : badgeClass === 'flex' ? 'accent' : badgeClass === 'church' ? 'accent3' : 'accent4'}"></span>${badgeLabels[badgeClass]}</div>`;
+
+  // Tuesday bible study banner (through end of April)
+  if (day === 'tuesday') {
+    const now = new Date();
+    const endOfApril = new Date(now.getFullYear(), 3, 30); // April 30
+    if (now <= endOfApril) {
+      html += `<div style="background:rgba(240,192,96,0.08);border:1px solid rgba(240,192,96,0.3);padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+        <span class="dot accent3"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;color:var(--accent3);text-transform:uppercase;">Men's Bible Study active through April — depart 6:00 PM, home ~9:00 PM</span>
+      </div>`;
+    }
+  }
+
+  const fixedBlocks = fixBlockTimes(data.blocks);
+  fixedBlocks.forEach((b, i) => {
+    const pillHtml = b.pill ? `<span class="pill ${b.pill}">${b.pill}</span>` : '';
+    const tips = b.tips ? b.tips.map(t => `<div class="tip-item">${t}</div>`).join('') : '';
+    const expandSection = b.expand ? `
+      <div class="block-expand">
+        ${b.expand.map(e => `<div class="expand-section"><div class="expand-label">${e.label}</div><div class="expand-value ${e.highlight ? 'highlight' : ''}">${e.value}</div></div>`).join('')}
+        ${tips ? `<div class="expand-tips">${tips}</div>` : ''}
+      </div>` : '';
+
+    html += `
+      <div class="block" id="block-${i}" data-start="${b.time}" data-end="${b.end}" onclick="toggleBlock(this)">
+        <div class="block-time">${formatDisplayTime(b.time)}<span class="end-time">${formatDisplayTime(b.end)}</span></div>
+        <div class="block-content">
+          <div class="block-title">${b.title} ${pillHtml}</div>
+          <div class="block-detail">${b.detail}</div>
+        </div>
+        ${expandSection}
+      </div>`;
+  });
+
+  col.innerHTML = html;
+  highlightCurrentBlock();
+}
+
+function toggleBlock(el) {
+  const wasExpanded = el.classList.contains('expanded');
+  document.querySelectorAll('.block.expanded').forEach(b => b.classList.remove('expanded'));
+  if (!wasExpanded) el.classList.add('expanded');
+}
+
+function formatDisplayTime(t) {
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function toH24(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function fixBlockTimes(blocks) {
+  let prevMins = 0;
+  let pmOffset = 0;
+  return blocks.map(b => {
+    let startMins = toH24(b.time);
+    let endMins = toH24(b.end);
+    if (startMins + pmOffset < prevMins - 30) pmOffset += 12 * 60;
+    const adjStart = startMins + pmOffset;
+    const adjEnd = endMins < startMins ? endMins + pmOffset + 12 * 60 : endMins + pmOffset;
+    prevMins = adjStart;
+    const toStr = m => `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}`;
+    return Object.assign({}, b, { time: toStr(adjStart), end: toStr(adjEnd) });
+  });
+}
+
+// ─── CLOCK & PROGRESS ────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  document.getElementById('live-clock').textContent = `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+
+  if (focusActive) {
+    document.getElementById('focus-clock').textContent = `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+  }
+
+  updateDayProgress();
+  highlightCurrentBlock();
+}
+
+function updateDayProgress() {
+  const now = new Date();
+  const totalMinutes = 24 * 60;
+  const elapsed = now.getHours() * 60 + now.getMinutes();
+  const pct = Math.min(100, (elapsed / totalMinutes) * 100);
+  document.getElementById('day-progress-fill').style.width = pct + '%';
+}
+
+function highlightCurrentBlock() {
+  if (!currentDay) return;
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+
+  document.querySelectorAll('.block').forEach(el => el.classList.remove('current-block'));
+
+  const blocks = fixBlockTimes(schedules[currentDay].blocks);
+  blocks.forEach((b, i) => {
+    const [sh, sm] = b.time.split(':').map(Number);
+    const [eh, em] = b.end.split(':').map(Number);
+    const startMins = sh * 60 + sm;
+    const endMins = eh * 60 + em;
+    if (nowMins >= startMins && nowMins < endMins) {
+      const el = document.getElementById(`block-${i}`);
+      if (el) {
+        el.classList.add('current-block');
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  });
+}
+
+// ─── FOCUS MODE ──────────────────────────────────────────────────────────────
+function enterFocusMode() {
+  if (!currentDay) return;
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const blocks = fixBlockTimes(schedules[currentDay].blocks);
+
+  let blockName = 'FOCUS MODE';
+  let blockTime = '';
+
+  blocks.forEach(b => {
+    const [sh, sm] = b.time.split(':').map(Number);
+    const [eh, em] = b.end.split(':').map(Number);
+    if (nowMins >= sh * 60 + sm && nowMins < eh * 60 + em) {
+      blockName = b.title.toUpperCase();
+      blockTime = `${formatDisplayTime(b.time)} – ${formatDisplayTime(b.end)}`;
+    }
+  });
+
+  document.getElementById('focus-block-name').textContent = blockName;
+  document.getElementById('focus-block-time').textContent = blockTime || 'Current Block';
+  document.getElementById('focus-overlay').classList.add('active');
+  document.getElementById('focus-btn').classList.add('active');
+  focusActive = true;
+  updateClock();
+}
+
+function exitFocusMode() {
+  document.getElementById('focus-overlay').classList.remove('active');
+  document.getElementById('focus-btn').classList.remove('active');
+  focusActive = false;
+}
+
+// ─── NUDGES ──────────────────────────────────────────────────────────────────
+function startNudges() {
+  if (nudgeInterval) clearInterval(nudgeInterval);
+  const minInterval = 12 * 60 * 1000; // 12 min
+  const maxInterval = 28 * 60 * 1000; // 28 min
+
+  function scheduleNext() {
+    const delay = minInterval + Math.random() * (maxInterval - minInterval);
+    nudgeInterval = setTimeout(() => {
+      if (nudgesEnabled) showNudge();
+      scheduleNext();
+    }, delay);
+  }
+  scheduleNext();
+}
+
+function showNudge() {
+  const msg = nudgeMessages[Math.floor(Math.random() * nudgeMessages.length)];
+  document.getElementById('nudge-text').textContent = msg;
+  const toast = document.getElementById('nudge-toast');
+  toast.classList.add('show');
+
+  // Play a soft audio tone
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(520, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+
+  setTimeout(() => { if (!document.getElementById('nudge-toast').matches(':hover')) dismissNudge(); }, 12000);
+}
+
+function dismissNudge() {
+  document.getElementById('nudge-toast').classList.remove('show');
+}
+
+function toggleNudges() {
+  nudgesEnabled = !nudgesEnabled;
+  const btn = document.getElementById('nudge-toggle');
+  btn.textContent = nudgesEnabled ? 'Nudges: ON' : 'Nudges: OFF';
+  btn.classList.toggle('active', nudgesEnabled);
+}
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+const storageKey = () => `command_${currentDay}_${new Date().toDateString()}`;
+
+function saveStorage() {
+  if (!currentDay) return;
+  const data = {
+    p1: document.getElementById('p1')?.value,
+    p2: document.getElementById('p2')?.value,
+    p3: document.getElementById('p3')?.value,
+    meal1: document.getElementById('meal1')?.value,
+    meal2: document.getElementById('meal2')?.value,
+    meal3: document.getElementById('meal3')?.value,
+    meal4: document.getElementById('meal4')?.value,
+    workout_type: document.getElementById('workout-type')?.value,
+    workout_duration: document.getElementById('workout-duration')?.value,
+    brain: document.getElementById('brain-dump')?.value,
+  };
+  try { localStorage.setItem(storageKey(), JSON.stringify(data)); } catch(e) {}
+  const ind = document.getElementById('save-indicator');
+  ind.textContent = 'saved ✓';
+  ind.classList.add('saved');
+  setTimeout(() => { ind.textContent = 'autosave'; ind.classList.remove('saved'); }, 2000);
+}
+
+function loadStorage() {
+  if (!currentDay) return;
+  try {
+    const raw = localStorage.getItem(storageKey());
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.p1) document.getElementById('p1').value = data.p1;
+    if (data.p2) document.getElementById('p2').value = data.p2;
+    if (data.p3) document.getElementById('p3').value = data.p3;
+    if (data.meal1) document.getElementById('meal1').value = data.meal1;
+    if (data.meal2) document.getElementById('meal2').value = data.meal2;
+    if (data.meal3) document.getElementById('meal3').value = data.meal3;
+    if (data.meal4) document.getElementById('meal4').value = data.meal4;
+    if (data.workout_type) document.getElementById('workout-type').value = data.workout_type;
+    if (data.workout_duration) document.getElementById('workout-duration').value = data.workout_duration;
+    if (data.brain) document.getElementById('brain-dump').value = data.brain;
+  } catch(e) {}
+}
+
+// Autosave on any input
+document.addEventListener('input', () => { if (currentDay) saveStorage(); });
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+setInterval(updateClock, 30000);
+updateClock();
+</script>
+
+<!-- Firebase SDKs — loaded after page renders so they don't block anything -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+// ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+// Paste your Firebase project values here after completing setup
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+let db = null;
+let firebaseReady = false;
+
+function initFirebase() {
+  try {
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    firebaseReady = true;
+    showSyncStatus('connected');
+  } catch(e) {
+    firebaseReady = false;
+    showSyncStatus('offline');
+  }
+}
+
+function showSyncStatus(state) {
+  const ind = document.getElementById('save-indicator');
+  if (!ind) return;
+  const states = {
+    connected: ['sync on',       true,  2000],
+    saving:    ['saving…',       false, 0],
+    saved:     ['synced ✓',      true,  2000],
+    offline:   ['local only',    false, 0],
+    error:     ['sync error',    false, 0],
+  };
+  const [text, addSaved, timeout] = states[state] || ['autosave', false, 0];
+  ind.textContent = text;
+  addSaved ? ind.classList.add('saved') : ind.classList.remove('saved');
+  if (timeout) setTimeout(() => { ind.textContent = 'autosave'; ind.classList.remove('saved'); }, timeout);
+}
+
+// ─── FIREBASE SAVE / LOAD ────────────────────────────────────────────────────
+const firestoreDocId = () => {
+  const d = new Date();
+  const dateStr = d.toISOString().slice(0, 10);
+  return `${dateStr}_${currentDay || 'unknown'}`;
+};
+
+function collectFields() {
+  const g = id => document.getElementById(id)?.value || '';
+  return {
+    p1: g('p1'), p2: g('p2'), p3: g('p3'),
+    meal1: g('meal1'), meal2: g('meal2'), meal3: g('meal3'), meal4: g('meal4'),
+    workout_type: g('workout-type'), workout_duration: g('workout-duration'),
+    brain: g('brain-dump'),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function applyFields(data) {
+  if (!data) return;
+  const s = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  s('p1', data.p1); s('p2', data.p2); s('p3', data.p3);
+  s('meal1', data.meal1); s('meal2', data.meal2);
+  s('meal3', data.meal3); s('meal4', data.meal4);
+  s('workout-type', data.workout_type);
+  s('workout-duration', data.workout_duration);
+  s('brain-dump', data.brain);
+}
+
+// Override the existing saveStorage with Firebase version
+let cloudSaveTimer = null;
+const _localStorageKey = () => `command_${currentDay}_${new Date().toDateString()}`;
+
+function saveStorage() {
+  if (!currentDay) return;
+  const data = collectFields();
+  // Always save locally as instant fallback
+  try { localStorage.setItem(_localStorageKey(), JSON.stringify(data)); } catch(e) {}
+  // Debounce cloud save — waits 1.5s after last keystroke before writing
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(async () => {
+    if (firebaseReady && db) {
+      showSyncStatus('saving');
+      try {
+        await db.collection('daily_entries').doc(firestoreDocId()).set(data, { merge: true });
+        showSyncStatus('saved');
+      } catch(e) { showSyncStatus('error'); }
+    } else {
+      const ind = document.getElementById('save-indicator');
+      if (ind) { ind.textContent = 'saved locally ✓'; ind.classList.add('saved'); setTimeout(() => { ind.textContent = 'autosave'; ind.classList.remove('saved'); }, 2000); }
+    }
+  }, 1500);
+}
+
+// Override loadStorage with Firebase version
+async function loadStorage() {
+  if (!currentDay) return;
+  // Try Firebase first
+  if (firebaseReady && db) {
+    try {
+      const doc = await db.collection('daily_entries').doc(firestoreDocId()).get();
+      if (doc.exists) { applyFields(doc.data()); return; }
+    } catch(e) { /* fall through */ }
+  }
+  // Fallback to localStorage
+  try {
+    const raw = localStorage.getItem(_localStorageKey());
+    if (raw) applyFields(JSON.parse(raw));
+  } catch(e) {}
+}
+
+// Boot Firebase — config values must be filled in first
+if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+  initFirebase();
+} else {
+  showSyncStatus('offline');
+}
+</script>
+</body>
+</html>
