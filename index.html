@@ -777,6 +777,90 @@
     transition: color 0.3s;
   }
   .save-indicator.saved { color: var(--accent2); }
+
+/* ── STUDY TRACKER VIEW ─────────────────────────────────── */
+#study-view { display:none; flex-direction:column; min-height:100vh; background:#0d0f0e; }
+#study-view.visible { display:flex; }
+.study-header { padding:20px 28px 14px; border-bottom:1px solid #2a2d26; display:flex; align-items:center; gap:16px; }
+.study-header h2 { font-size:18px; font-weight:700; color:#fff; letter-spacing:.5px; flex:1; }
+.study-header p { font-size:12px; color:#6b7060; }
+.study-overall-bar { margin-top:10px; }
+.study-overall-bar .bar-label { display:flex; justify-content:space-between; font-size:11px; color:#6b7060; margin-bottom:3px; }
+#sv-overall-bar-outer { background:#1a1d18; border-radius:6px; height:7px; overflow:hidden; }
+#sv-overall-bar-fill { height:100%; border-radius:6px; background:linear-gradient(90deg,#4f9cf9,#4fc97e,#a78bfa); transition:width .4s; }
+.study-phase-nav { display:flex; gap:8px; padding:12px 28px; border-bottom:1px solid #2a2d26; flex-wrap:wrap; position:sticky; top:0; background:#0d0f0e; z-index:5; }
+.sv-phase-btn { padding:5px 14px; border-radius:6px; border:1px solid #2a2d26; background:transparent; color:#6b7060; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; font-family:inherit; }
+.sv-phase-btn.all.active,.sv-phase-btn.all:hover { background:#1a1d18; border-color:#4a4d46; color:#e8e8e2; }
+.sv-phase-btn.p1.active,.sv-phase-btn.p1:hover { background:#0e1b2e; border-color:#4f9cf9; color:#4f9cf9; }
+.sv-phase-btn.p2.active,.sv-phase-btn.p2:hover { background:#0a1f14; border-color:#4fc97e; color:#4fc97e; }
+.sv-phase-btn.p3.active,.sv-phase-btn.p3:hover { background:#1a1230; border-color:#a78bfa; color:#a78bfa; }
+.sv-phase-stats { margin-left:auto; display:flex; gap:14px; align-items:center; font-size:11px; color:#6b7060; }
+.sv-phase-stats span b { color:#e8e8e2; }
+.sv-content { padding:20px 28px; flex:1; }
+.sv-phase-section { margin-bottom:36px; }
+.sv-phase-section.sv-hidden { display:none; }
+.sv-phase-hdr { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.sv-phase-badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.5px; }
+.sv-p1 .sv-phase-badge { background:#1e3a5f; color:#4f9cf9; }
+.sv-p2 .sv-phase-badge { background:#1a3d2b; color:#4fc97e; }
+.sv-p3 .sv-phase-badge { background:#3b2a6b; color:#a78bfa; }
+.sv-phase-title { font-size:16px; font-weight:700; }
+.sv-phase-prog-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.sv-phase-prog-row .sv-bar-outer { flex:1; background:#1a1d18; border-radius:5px; height:5px; overflow:hidden; }
+.sv-phase-prog-bar { height:100%; border-radius:5px; transition:width .3s; }
+.sv-week-card { background:#13160f; border:1px solid #2a2d26; border-radius:10px; margin-bottom:10px; overflow:hidden; }
+.sv-week-hdr { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; user-select:none; transition:background .15s; }
+.sv-week-hdr:hover { background:#181b16; }
+.sv-week-num { font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px; flex-shrink:0; }
+.sv-p1 .sv-week-num { background:#1e3a5f; color:#4f9cf9; }
+.sv-p2 .sv-week-num { background:#1a3d2b; color:#4fc97e; }
+.sv-p3 .sv-week-num { background:#3b2a6b; color:#a78bfa; }
+.sv-week-title { font-weight:600; font-size:13px; flex:1; }
+.sv-wk-prog-bar { width:90px; height:4px; background:#1a1d18; border-radius:3px; overflow:hidden; flex-shrink:0; }
+.sv-wk-prog-fill { height:100%; border-radius:3px; transition:width .3s; }
+.sv-wk-pct { font-size:11px; color:#6b7060; width:30px; text-align:right; flex-shrink:0; }
+.sv-chevron { color:#6b7060; font-size:11px; transition:transform .2s; flex-shrink:0; }
+.sv-week-card.open .sv-chevron { transform:rotate(90deg); }
+.sv-week-body { display:none; padding:0 16px 16px; }
+.sv-week-card.open .sv-week-body { display:block; }
+.sv-section-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#6b7060; margin:12px 0 7px; }
+.sv-sched-grid { display:grid; grid-template-columns:85px 140px 1fr; border:1px solid #2a2d26; border-radius:7px; overflow:hidden; font-size:12px; }
+.sv-sched-row { display:contents; }
+.sv-sched-row>div { padding:8px 10px; border-bottom:1px solid #2a2d26; }
+.sv-sched-row:last-child>div { border-bottom:none; }
+.sv-sched-row.sv-anki>div { background:#111410; }
+.sv-day-col { font-weight:700; font-size:11px; display:flex; flex-direction:column; gap:1px; }
+.sv-day-type { font-size:10px; font-weight:400; color:#6b7060; }
+.sv-block-col { color:#6b7060; font-size:11px; line-height:1.7; }
+.sv-block-col b { display:block; color:#b8b8b0; font-weight:600; font-size:10px; }
+.sv-tasks-col { display:flex; flex-direction:column; gap:5px; }
+.sv-anki-badge { display:inline-flex; align-items:center; gap:5px; background:#1a1d18; border:1px solid #2a2d26; padding:3px 9px; border-radius:5px; font-size:11px; color:#b8b8b0; width:fit-content; }
+.sv-task-row { display:flex; align-items:flex-start; gap:7px; padding:3px 0; }
+.sv-task-check { width:15px; height:15px; border-radius:3px; border:2px solid #2a2d26; background:transparent; cursor:pointer; flex-shrink:0; margin-top:1px; appearance:none; -webkit-appearance:none; transition:all .15s; }
+.sv-p1 .sv-task-check { border-color:#1e3a5f; }
+.sv-p2 .sv-task-check { border-color:#1a3d2b; }
+.sv-p3 .sv-task-check { border-color:#3b2a6b; }
+.sv-p1 .sv-task-check:checked { background:#4f9cf9; border-color:#4f9cf9; }
+.sv-p2 .sv-task-check:checked { background:#4fc97e; border-color:#4fc97e; }
+.sv-p3 .sv-task-check:checked { background:#a78bfa; border-color:#a78bfa; }
+.sv-task-check:checked::after { content:'✓'; display:block; color:#000; font-size:9px; text-align:center; line-height:13px; font-weight:900; }
+.sv-task-lbl { flex:1; font-size:12px; line-height:1.4; }
+.sv-task-lbl.done { text-decoration:line-through; color:#6b7060; }
+.sv-link-btn { flex-shrink:0; padding:2px 7px; border-radius:4px; border:1px solid #2a2d26; background:#1a1d18; color:#6b7060; font-size:10px; cursor:pointer; white-space:nowrap; transition:all .15s; text-decoration:none; display:inline-block; font-family:inherit; }
+.sv-link-btn:hover { border-color:#6b7060; color:#e8e8e2; background:#222520; }
+.sv-notes-prompts { background:#111410; border-radius:7px; padding:10px 12px; margin-bottom:7px; }
+.sv-p1 .sv-notes-prompts { border-left:3px solid #1e3a5f; }
+.sv-p2 .sv-notes-prompts { border-left:3px solid #1a3d2b; }
+.sv-p3 .sv-notes-prompts { border-left:3px solid #3b2a6b; }
+.sv-notes-prompts p { font-size:11px; color:#6b7060; margin-bottom:5px; }
+.sv-notes-prompts ol { padding-left:14px; display:flex; flex-direction:column; gap:3px; }
+.sv-notes-prompts li { font-size:11px; color:#9a9b94; line-height:1.4; }
+.sv-notes-ta { width:100%; background:#0a0c09; border:1px solid #2a2d26; border-radius:7px; color:#e8e8e2; font-family:inherit; font-size:12px; padding:8px 10px; resize:vertical; min-height:72px; line-height:1.5; outline:none; transition:border-color .2s; }
+.sv-notes-ta:focus { border-color:#4a4d46; }
+.sv-checkpoint { display:flex; gap:9px; background:#161a10; border:1px solid #2a3520; border-radius:7px; padding:10px 12px; margin-top:10px; }
+.sv-cp-icon { font-size:14px; flex-shrink:0; line-height:1.4; }
+.sv-cp-text { font-size:12px; color:#b8c8a0; line-height:1.5; }
+.sv-cp-text b { color:#c8e0a0; display:block; font-size:10px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
 </style>
 </head>
 <body>
@@ -824,6 +908,9 @@
       <span class="tag">Church</span>
     </button>
   </div>
+  <button class="day-btn" onclick="openStudyTracker()" style="margin-top:16px;width:100%;max-width:420px;border:1px solid #3b2a6b;color:#a78bfa;background:#1a1230;border-radius:10px;padding:14px 20px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;">
+    <span>📋</span><span>Study Tracker</span><span class="tag" style="background:#3b2a6b;color:#a78bfa;font-size:11px;padding:2px 8px;border-radius:20px;margin-left:4px;">$200k Plan</span>
+  </button>
 </div>
 
 <!-- FOCUS OVERLAY -->
@@ -857,6 +944,7 @@
     <span class="save-indicator" id="save-indicator">autosave</span>
     <button class="btn" id="nudge-toggle" onclick="toggleNudges()">Nudges: ON</button>
     <button class="btn" id="focus-btn" onclick="enterFocusMode()">⊙ Focus Mode</button>
+    <button class="btn" id="study-btn" onclick="openStudyTracker()" style="border-color:#3b2a6b;color:#a78bfa;">📋 Study</button>
     <button class="btn" onclick="showDayPicker()">↩ Change Day</button>
   </div>
 </header>
@@ -926,6 +1014,38 @@
     </div>
   </div>
 </main>
+
+<!-- STUDY TRACKER VIEW -->
+<div id="study-view">
+  <div class="study-header">
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+        <h2>📋 Cert Study Tracker</h2>
+        <button class="btn" onclick="closeStudyTracker()" style="font-size:12px;padding:4px 12px;">✕ Back to Schedule</button>
+      </div>
+      <p>Terraform Associate → AZ-104 → AZ-305 &nbsp;|&nbsp; Target: $200k+ in 12 months</p>
+      <div class="study-overall-bar">
+        <div class="bar-label">
+          <span>Overall Progress</span>
+          <span id="sv-overall-pct">0%</span>
+        </div>
+        <div id="sv-overall-bar-outer"><div id="sv-overall-bar-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="study-phase-nav">
+    <button class="sv-phase-btn all active" onclick="svFilterPhase(0)">All</button>
+    <button class="sv-phase-btn p1" onclick="svFilterPhase(1)">Phase 1: Terraform</button>
+    <button class="sv-phase-btn p2" onclick="svFilterPhase(2)">Phase 2: AZ-104</button>
+    <button class="sv-phase-btn p3" onclick="svFilterPhase(3)">Phase 3: AZ-305</button>
+    <div class="sv-phase-stats">
+      <span>P1 <b id="sv-p1stat">0%</b></span>
+      <span>P2 <b id="sv-p2stat">0%</b></span>
+      <span>P3 <b id="sv-p3stat">0%</b></span>
+    </div>
+  </div>
+  <div class="sv-content" id="sv-main-content"></div>
+</div>
 
 <script>
 // ─── SCHEDULE DATA ───────────────────────────────────────────────────────────
@@ -1699,6 +1819,184 @@ if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'
   initFirebase();
 } else {
   showSyncStatus('offline');
+}
+
+// ── STUDY TRACKER ─────────────────────────────────────────────────────────────
+const SV_PHASE_COLORS={1:"#4f9cf9",2:"#4fc97e",3:"#a78bfa"};
+const SV_WEEKS=[
+{w:1,p:1,title:"Install & First Config",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Install Terraform CLI","https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli"],["Install VS Code + HashiCorp Terraform extension","https://marketplace.visualstudio.com/items?itemName=HashiCorp.terraform"],["Create free HCP Terraform account","https://app.terraform.io/signup/account"],["Complete 'Build Infrastructure' tutorial — write your first .tf file","https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-build"],["Pluralsight: Terraform Getting Started (Ned Bellavance) — Module 1","https://app.pluralsight.com/library/courses/terraform-getting-started-2023"]],notes:["What did `terraform init` do? Describe it in plain language.","What is a .tf file and what does it contain at minimum?","What provider did you configure and what does a provider actually do?"],cp:"You can run `terraform init`, `terraform plan`, and `terraform apply` without errors. Run `terraform version` and get a response."},
+{w:2,p:1,title:"Core Workflow: Plan, Apply, Destroy",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Complete 'Change Infrastructure' tutorial","https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-change"],["Complete 'Destroy Infrastructure' tutorial","https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-destroy"],["Pluralsight: Terraform Getting Started — Modules 2 & 3","https://app.pluralsight.com/library/courses/terraform-getting-started-2023"],["Read Terraform Language docs overview","https://developer.hashicorp.com/terraform/language"],["Anki blast: create 20 cards from Weeks 1–2 concepts","https://apps.ankiweb.net/"]],notes:["Explain `terraform plan` vs `terraform apply` like you're telling a junior tech.","What's the difference between destroying a resource and just removing it from your config?","What surprised you most this week?"],cp:"You can explain the full Terraform workflow (write → init → plan → apply → destroy) out loud without notes."},
+{w:3,p:1,title:"State Management",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Complete 'Store Remote State' tutorial","https://developer.hashicorp.com/terraform/tutorials/aws-get-started/aws-remote"],["Read Terraform State documentation","https://developer.hashicorp.com/terraform/language/state"],["Complete 'Manage Resources in State' tutorial","https://developer.hashicorp.com/terraform/tutorials/state/state-cli"],["Complete 'Import Terraform Configuration' tutorial","https://developer.hashicorp.com/terraform/tutorials/state/state-import"],["Read Terraform Backend docs","https://developer.hashicorp.com/terraform/language/backend"]],notes:["What is terraform.tfstate and where does it live by default?","Why is remote state important? What happens if two people run apply simultaneously without it?","What does `terraform state list` show you? Run it and describe the output."],cp:"You can explain what state is, why it exists, and what happens if it gets out of sync — no notes."},
+{w:4,p:1,title:"Modules",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Complete 'Reuse Configuration with Modules' tutorial","https://developer.hashicorp.com/terraform/tutorials/modules/module"],["Browse Terraform Registry — look at 3 real-world modules","https://registry.terraform.io/browse/modules"],["Complete 'Build and Use a Local Module' tutorial","https://developer.hashicorp.com/terraform/tutorials/modules/module-create"],["Complete 'Use Modules from the Registry' tutorial","https://developer.hashicorp.com/terraform/tutorials/modules/module-use"],["Read Terraform Modules documentation","https://developer.hashicorp.com/terraform/language/modules"]],notes:["What makes a module? What files does it need at minimum?","How do you pass variables into a module and get outputs back out?","When would you use a module vs just writing the resource directly?"],cp:"You've written a local module with at least one input variable and one output. You can call it from a root config."},
+{w:5,p:1,title:"Variables, Outputs & Data Sources",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Complete 'Customize Terraform Configuration with Variables' tutorial","https://developer.hashicorp.com/terraform/tutorials/configuration-language/variables"],["Read Outputs documentation","https://developer.hashicorp.com/terraform/language/values/outputs"],["Complete 'Query Data Sources' tutorial","https://developer.hashicorp.com/terraform/tutorials/configuration-language/data-sources"],["Read Expressions docs — focus on conditionals and for_each","https://developer.hashicorp.com/terraform/language/expressions"],["Pluralsight: Terraform Deep Dive — start (advanced patterns)","https://app.pluralsight.com/library/courses/terraform-deep-dive"]],notes:["What are the 3 ways to set a variable value? Which one takes priority?","What's a data source vs a resource? Give a real-world example.","When would you use `count` vs `for_each`? What's the practical difference?"],cp:"Your config uses at least one variable with validation, one output value, and one data source."},
+{w:6,p:1,title:"Workspaces, Provisioners & HCP Terraform",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Read Workspaces documentation","https://developer.hashicorp.com/terraform/language/state/workspaces"],["Complete 'Get Started — HCP Terraform' tutorial","https://developer.hashicorp.com/terraform/tutorials/cloud/cloud-sign-up"],["Read Provisioners docs — understand why they're a last resort","https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax"],["Complete 'Manage Multiple Environments' tutorial","https://developer.hashicorp.com/terraform/tutorials/modules/organize-configuration"],["Pluralsight: Terraform Deep Dive — continue","https://app.pluralsight.com/library/courses/terraform-deep-dive"]],notes:["What problem do workspaces solve? When would you use them?","Why does HashiCorp say provisioners are a last resort? What's the alternative?","How does HCP Terraform differ from running open-source Terraform locally?"],cp:"You've created at least 2 workspaces (dev/prod) and can explain workspace state isolation."},
+{w:7,p:1,title:"Practice Exams + Gap Fill",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Bryan Krausen Practice Exam Set 1 — timed, record your score","https://www.udemy.com/course/terraform-associate-practice-exam/"],["Review official Terraform Associate exam objectives","https://www.hashicorp.com/certification/terraform-associate"],["Bryan Krausen Practice Exam Set 2 — timed","https://www.udemy.com/course/terraform-associate-practice-exam/"],["Read official Associate 003 Study Guide end to end","https://developer.hashicorp.com/terraform/tutorials/certification-003/associate-study-003"],["Anki cards for every question you got wrong on Sets 1 & 2","https://apps.ankiweb.net/"]],notes:["Set 1 score: ___ / Set 2 score: ___. What category had the most misses?","List your top 3 topics to re-study before exam day.","What concept finally clicked this week?"],cp:"Scoring 75%+ on both Krausen exams consistently before moving on."},
+{w:8,p:1,title:"Final Review + Take the Terraform Exam",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Bryan Krausen Practice Exam Set 3 — full timed, phone away, no pausing","https://www.udemy.com/course/terraform-associate-practice-exam/"],["Review official Associate 003 Review Guide — all objectives","https://developer.hashicorp.com/terraform/tutorials/certification-003/associate-review-003"],["Final timed practice exam — simulate real conditions","https://www.udemy.com/course/terraform-associate-practice-exam/"],["Schedule your exam via PSI","https://www.hashicorp.com/certification/terraform-associate"],["TAKE THE TERRAFORM ASSOCIATE EXAM","https://www.hashicorp.com/certification/terraform-associate"]],notes:["Final practice exam score: ___. Are you hitting 80%+?","What are you most confident walking in with?","What's one thing you're least sure about? Review it right now before you close this tab."],cp:"PASS Terraform Associate. Submit employer reimbursement immediately. Update your resume."},
+{w:9,p:2,title:"Azure Core Concepts + Setup",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: AZ-104 certification overview — read the full page","https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"],["Download and read the AZ-104 exam skills outline PDF","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104"],["MS Learn: Manage Azure identities and governance — start Module 1","https://learn.microsoft.com/en-us/training/paths/az-104-manage-identities-governance/"],["Explore Azure portal — find: subscriptions, resource groups, Entra ID","https://portal.azure.com"],["Create a free Azure account (if bank tenant not available for labs)","https://azure.microsoft.com/en-us/free/"]],notes:["What are the 6 major topic areas on the AZ-104 exam? List them.","What's the difference between a subscription, resource group, and resource?","Which parts of Azure have you already touched at the bank?"],cp:"You have Azure portal access, have read the full exam skills outline, and can navigate the portal without getting lost."},
+{w:10,p:2,title:"Entra ID (Azure AD) + RBAC",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Manage Azure Active Directory identities","https://learn.microsoft.com/en-us/training/modules/manage-azure-active-directory-identities/"],["MS Learn: Manage role-based access control (RBAC)","https://learn.microsoft.com/en-us/training/modules/manage-role-based-access-control-azure/"],["Lab: Create a user, a group, assign a built-in RBAC role, verify access","https://learn.microsoft.com/en-us/training/modules/manage-azure-active-directory-identities/"],["MS Learn: Configure Azure Policy","https://learn.microsoft.com/en-us/training/modules/configure-azure-policy/"],["MS Learn: Configure subscriptions","https://learn.microsoft.com/en-us/training/modules/configure-subscriptions/"]],notes:["What's the difference between a user, a group, and a service principal?","Explain RBAC in one sentence. Then in one paragraph.","What does Azure Policy enforce vs RBAC? They're different — explain how."],cp:"You've created a test user, assigned a built-in RBAC role, and confirmed access works as expected."},
+{w:11,p:2,title:"Governance, Cost Management & Locks",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure resource locks","https://learn.microsoft.com/en-us/training/modules/configure-resource-locks/"],["MS Learn: Apply and monitor infrastructure standards with Azure Policy","https://learn.microsoft.com/en-us/training/modules/intro-to-azure-policy/"],["MS Learn: Manage Azure subscriptions and governance (full path)","https://learn.microsoft.com/en-us/training/paths/az-104-manage-identities-governance/"],["Explore Azure Cost Management + Billing in the portal","https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/overview"],["MS Learn: Configure Azure Monitor (intro)","https://learn.microsoft.com/en-us/training/modules/configure-azure-monitor/"]],notes:["What's a resource lock and when would you use one?","What's a management group and how does it relate to subscriptions?","How would you prevent someone from accidentally deleting a prod resource group?"],cp:"You understand the full hierarchy: Management Group → Subscription → Resource Group → Resource."},
+{w:12,p:2,title:"Virtual Networking",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure virtual networks","https://learn.microsoft.com/en-us/training/modules/configure-virtual-networks/"],["MS Learn: Configure network security groups (NSGs)","https://learn.microsoft.com/en-us/training/modules/configure-network-security-groups/"],["Lab: Create a VNet with 2 subnets and apply an NSG with custom rules","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"],["MS Learn: Configure Azure DNS","https://learn.microsoft.com/en-us/training/modules/configure-azure-dns/"],["MS Learn: Configure VNet peering","https://learn.microsoft.com/en-us/training/modules/configure-vnet-peering/"]],notes:["What is a subnet? How does it relate to a VNet?","How does an NSG work? What's the difference between inbound and outbound rules?","What does VNet peering enable that wouldn't work without it?"],cp:"You've created a VNet with at least 2 subnets and applied an NSG with custom allow/deny rules."},
+{w:13,p:2,title:"Network Routing & Load Balancing",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure Azure Load Balancer","https://learn.microsoft.com/en-us/training/modules/configure-azure-load-balancer/"],["MS Learn: Configure Azure Application Gateway","https://learn.microsoft.com/en-us/training/modules/configure-azure-application-gateway/"],["MS Learn: Configure network routing and endpoints","https://learn.microsoft.com/en-us/training/modules/configure-network-routing-endpoints/"],["MS Learn: Configure Azure VPN Gateway","https://learn.microsoft.com/en-us/training/modules/configure-vpn-gateway/"],["MS Learn: Configure Azure Firewall","https://learn.microsoft.com/en-us/training/modules/configure-azure-firewall/"]],notes:["What's the difference between a Load Balancer and an Application Gateway?","What is a UDR (User Defined Route) and when would you use one?","What does a VPN Gateway connect? What are the two main types?"],cp:"You can diagram a basic Azure network topology with subnets, NSGs, and routing from memory."},
+{w:14,p:2,title:"Virtual Machines",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure virtual machines","https://learn.microsoft.com/en-us/training/modules/configure-virtual-machines/"],["MS Learn: Configure virtual machine availability","https://learn.microsoft.com/en-us/training/modules/configure-virtual-machine-availability/"],["Lab: Deploy a VM, connect via RDP/SSH, attach and configure a data disk","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"],["MS Learn: Configure Azure Disk Storage","https://learn.microsoft.com/en-us/training/modules/configure-azure-disk-encryption/"],["MS Learn: Automate VM deployment with ARM templates","https://learn.microsoft.com/en-us/training/modules/configure-virtual-machines/"]],notes:["What's the difference between an availability set and an availability zone?","What are the Azure VM disk types and when would you use each?","How do you resize a VM without losing its data?"],cp:"You've deployed a VM from the portal AND via ARM template."},
+{w:15,p:2,title:"Storage Accounts",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure storage accounts","https://learn.microsoft.com/en-us/training/modules/configure-storage-accounts/"],["MS Learn: Configure Azure Blob Storage","https://learn.microsoft.com/en-us/training/modules/configure-blob-storage/"],["MS Learn: Configure storage security (SAS, access keys, RBAC)","https://learn.microsoft.com/en-us/training/modules/configure-storage-security/"],["MS Learn: Configure Azure Files and Azure File Sync","https://learn.microsoft.com/en-us/training/modules/configure-azure-files-file-sync/"],["Lab: Create a storage account, upload blobs, configure access tiers","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"]],notes:["What are the 4 Azure storage services (Blob, Table, Queue, Files)? What is each one for?","What's the difference between LRS, ZRS, and GRS?","What is SAS and when would you use it vs a storage access key?"],cp:"You can create a storage account, configure redundancy, and upload/access blobs."},
+{w:16,p:2,title:"App Services & Containers",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure Azure App Service plans","https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/"],["MS Learn: Configure Azure App Service (deployment, scaling, slots)","https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/"],["MS Learn: Configure Azure Container Instances (ACI)","https://learn.microsoft.com/en-us/training/modules/configure-azure-container-instances/"],["MS Learn: Configure Azure Kubernetes Service (AKS)","https://learn.microsoft.com/en-us/training/modules/configure-azure-kubernetes-service/"],["Lab: Deploy a web app to Azure App Service","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"]],notes:["What does an App Service Plan define?","When would you use ACI vs AKS for containers?","How is deploying to App Service different from deploying to a VM?"],cp:"You've deployed at least one app to App Service."},
+{w:17,p:2,title:"Monitoring & Backup",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Configure Azure Monitor alerts","https://learn.microsoft.com/en-us/training/modules/configure-azure-monitor/"],["MS Learn: Configure Log Analytics workspaces","https://learn.microsoft.com/en-us/training/modules/configure-log-analytics/"],["MS Learn: Configure Azure Backup","https://learn.microsoft.com/en-us/training/modules/configure-azure-backup/"],["MS Learn: Configure Azure Site Recovery","https://learn.microsoft.com/en-us/training/modules/configure-azure-site-recovery/"],["Lab: Set up a Monitor alert and test a backup policy","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"]],notes:["What's the difference between Azure Monitor and Log Analytics?","What is a Recovery Services Vault used for?","How does Azure Site Recovery differ from Azure Backup?"],cp:"You've configured a metric alert and tested a backup policy in the portal."},
+{w:18,p:2,title:"Catch-Up + First Practice Test",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Revisit your weakest AZ-104 area from Weeks 9–17","https://learn.microsoft.com/en-us/training/browse/?products=azure&levels=intermediate"],["Complete any incomplete MS Learn labs from prior weeks","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"],["Scenario practice: diagram and configure a 3-tier app architecture in Azure","https://learn.microsoft.com/en-us/azure/architecture/guide/"],["MeasureUp AZ-104 Practice Test — Mode 1 (learning mode)","https://www.measureup.com/az-104-microsoft-azure-administrator.html"],["Anki cards for every MeasureUp question you got wrong","https://apps.ankiweb.net/"]],notes:["What area gave you the most trouble in Phase 2 so far?","MeasureUp learning mode score: ___","List 5 Azure CLI commands you should be able to run from memory for the exam."],cp:"MeasureUp learning mode score 70%+ before moving to timed tests."},
+{w:19,p:2,title:"Practice Exams + Gap Fill",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MeasureUp AZ-104 — Mode 2 (timed practice test)","https://www.measureup.com/az-104-microsoft-azure-administrator.html"],["Review AZ-104 exam skills outline — mark everything you know cold","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104"],["MeasureUp AZ-104 — Mode 3 (custom exam: weakest areas only)","https://www.measureup.com/az-104-microsoft-azure-administrator.html"],["Re-read skills outline — anything NOT crossed off gets reviewed now","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104"],["Anki blast: 30 new cards from your current gaps","https://apps.ankiweb.net/"]],notes:["MeasureUp timed test score: ___","What are your top 3 weak areas right now?","How does your Azure knowledge compare to Week 9?"],cp:"Scoring 80%+ on MeasureUp timed tests consistently."},
+{w:20,p:2,title:"Simulation Labs + Scenario Practice",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn sandbox labs — complete 3 end-to-end scenario labs","https://learn.microsoft.com/en-us/training/paths/az-104-administrator-prerequisites/"],["Review key Azure CLI commands for exam scenarios","https://learn.microsoft.com/en-us/cli/azure/reference-index"],["GitHub lab guide: pick and complete 3 hard labs","https://microsoftlearning.github.io/AZ-104-MicrosoftAzureAdministrator/"],["MeasureUp AZ-104 — full timed exam, real conditions, no interruptions","https://www.measureup.com/az-104-microsoft-azure-administrator.html"],["Review all wrong answers in detail, understand why each was wrong","https://www.measureup.com/az-104-microsoft-azure-administrator.html"]],notes:["Confidence level for the real exam (1–10): ___","What scenario type still trips you up?","Write out from memory: how would you configure RBAC for a new hire with read-only access to one resource group?"],cp:"MeasureUp 85%+ on full timed exam. If not there yet, don't schedule."},
+{w:21,p:2,title:"Final Review — AZ-104",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Review Entra ID + RBAC (most heavily tested on AZ-104)","https://learn.microsoft.com/en-us/training/paths/az-104-manage-identities-governance/"],["Review Virtual Networking (second most tested area)","https://learn.microsoft.com/en-us/training/modules/configure-virtual-networks/"],["Final MeasureUp timed exam — treat it like the real thing","https://www.measureup.com/az-104-microsoft-azure-administrator.html"],["Review Azure PowerShell and CLI equivalents for common portal tasks","https://learn.microsoft.com/en-us/powershell/azure/"],["Rest. Anki review only. No new material today.","https://apps.ankiweb.net/"]],notes:["Final MeasureUp score: ___","What's your biggest gap going in?","What are you most confident about?"],cp:"MeasureUp 85%+ twice in a row. You're ready. Schedule the exam."},
+{w:22,p:2,title:"Take the AZ-104 Exam",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Light review only — Anki cards, no new material","https://apps.ankiweb.net/"],["Review exam day logistics — testing location, valid ID, check-in rules","https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"],["Optional: one more MeasureUp pass on your weakest area only","https://www.measureup.com/az-104-microsoft-azure-administrator.html"],["Schedule exam if not already booked (Pearson VUE)","https://learn.microsoft.com/en-us/credentials/certifications/schedule-through-pearson-vue"],["TAKE THE AZ-104 EXAM","https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"]],notes:["Exam score: ___","What surprised you on the real exam?","Submit employer reimbursement immediately after passing."],cp:"PASS AZ-104. Submit reimbursement. Update resume and LinkedIn TODAY. Start Phase 3."},
+{w:23,p:3,title:"Architecture Fundamentals + Well-Architected Framework",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: AZ-305 certification overview — read the full page","https://learn.microsoft.com/en-us/credentials/certifications/azure-solutions-architect/"],["Download and read the AZ-305 exam skills outline PDF","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305"],["MS Learn: Azure Well-Architected Framework — full path","https://learn.microsoft.com/en-us/training/paths/azure-well-architected-framework/"],["Azure Architecture Center — browse 5 reference architectures","https://learn.microsoft.com/en-us/azure/architecture/"],["MS Learn: Design identity, governance, and monitoring solutions — start","https://learn.microsoft.com/en-us/training/paths/design-identity-governance-monitor-solutions/"]],notes:["What are the 5 pillars of the Well-Architected Framework?","How does AZ-305 differ from AZ-104 in what it actually tests?","What types of jobs does this cert unlock that AZ-104 doesn't?"],cp:"You've read the full AZ-305 skills outline and mapped it to your AZ-104 knowledge. You know where the gaps are."},
+{w:24,p:3,title:"Identity + Governance Design",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Design authentication and authorization solutions","https://learn.microsoft.com/en-us/training/modules/design-authentication-authorization-solutions/"],["MS Learn: Design governance solutions (management groups, policy, RBAC)","https://learn.microsoft.com/en-us/training/modules/design-governance/"],["MS Learn: Design a solution for logging and monitoring","https://learn.microsoft.com/en-us/training/modules/design-solution-for-logging-and-monitoring/"],["Case study: design a governance model for a 500-person org — whiteboard it","https://learn.microsoft.com/en-us/azure/architecture/"],["Read: Managed identities overview — when to use vs service principals","https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview"]],notes:["What's the difference between designing identity (AZ-305) vs administering it (AZ-104)?","When would you choose managed identities over service principals?","Diagram a governance model: management groups → subscriptions → resource groups."],cp:"You can whiteboard a governance design for a mid-size enterprise without reference materials."},
+{w:25,p:3,title:"Compute + Migration Design",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Design compute solutions (VMs, containers, serverless)","https://learn.microsoft.com/en-us/training/modules/design-compute-solution/"],["MS Learn: Design an application architecture","https://learn.microsoft.com/en-us/training/modules/design-application-architecture/"],["MS Learn: Design migrations (Azure Migrate, lift-and-shift vs refactor)","https://learn.microsoft.com/en-us/training/modules/design-migrations/"],["Azure Migrate overview — understand the full migration toolset","https://learn.microsoft.com/en-us/azure/migrate/migrate-services-overview"],["Case study: design a migration for an on-prem VMware environment to Azure","https://learn.microsoft.com/en-us/azure/migrate/migrate-services-overview"]],notes:["When would you lift-and-shift vs refactor vs replatform? Give decision criteria.","How is Azure Migrate directly relevant to what your bank is doing RIGHT NOW?","What compute option would you recommend for a stateless web app at scale?"],cp:"You can recommend a migration strategy for a given scenario and justify the decision."},
+{w:26,p:3,title:"Network Design",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Design network solutions (connectivity, routing, filtering)","https://learn.microsoft.com/en-us/training/modules/design-network-solutions/"],["Hub-spoke network topology deep dive — Azure Architecture Center","https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke"],["Read: Azure ExpressRoute overview — when to use vs VPN Gateway","https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction"],["Read: Azure Virtual WAN overview (enterprise-scale networking)","https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about"],["Case study: design a hybrid network for a bank (on-prem + Azure)","https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/"]],notes:["What is hub-spoke and why is it the standard enterprise network pattern?","What's the difference between VPN Gateway and ExpressRoute? When does a bank use each?","Draw the network design you'd pitch to your bank today."],cp:"You can design a hub-spoke network topology and explain why it's appropriate for enterprise."},
+{w:27,p:3,title:"Storage + Data Design",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Design a non-relational data storage solution","https://learn.microsoft.com/en-us/training/modules/design-data-storage-solution-for-non-relational-data/"],["MS Learn: Design a relational data storage solution","https://learn.microsoft.com/en-us/training/modules/design-data-storage-solution-for-relational-data/"],["MS Learn: Design data integration solutions","https://learn.microsoft.com/en-us/training/modules/design-data-integration/"],["Read: Azure data store decision guide — choose the right storage type","https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-store-overview"],["Case study: select appropriate storage for a banking application","https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-store-overview"]],notes:["When would you use Blob vs Azure Files vs Azure NetApp Files?","What's the difference between Azure SQL and Azure SQL Managed Instance?","What's a data lake and when does it make sense?"],cp:"You can select the appropriate storage type for 5 different scenario types without referencing notes."},
+{w:28,p:3,title:"Business Continuity + DR Design",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Design a solution for backup and disaster recovery","https://learn.microsoft.com/en-us/training/modules/design-solution-for-backup-disaster-recovery/"],["MS Learn: Design for high availability","https://learn.microsoft.com/en-us/training/modules/design-for-high-availability/"],["Read: Availability zones overview and design patterns","https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview"],["Case study: design DR for a core banking application (99.99% SLA)","https://learn.microsoft.com/en-us/azure/architecture/solution-ideas/articles/disaster-recovery-enterprise-scale-dr"],["Read: Calculate composite SLAs for multi-component Azure systems","https://learn.microsoft.com/en-us/azure/architecture/framework/resiliency/business-metrics"]],notes:["What's RTO vs RPO? Give a bank-specific example of each.","What's the difference between backup and disaster recovery?","How would you design 99.99% availability for a critical banking app?"],cp:"You can explain RTO/RPO, design a DR solution, and calculate composite SLA for a multi-component system."},
+{w:29,p:3,title:"Cost Optimization + Architecture Patterns",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Azure Well-Architected — Cost Optimization pillar","https://learn.microsoft.com/en-us/training/modules/azure-well-architected-cost-optimization/"],["Azure Pricing Calculator — practice estimating 3 different scenarios","https://azure.microsoft.com/en-us/pricing/calculator/"],["Read: Microservices architecture pattern overview","https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/microservices"],["Read: Azure Reserved Instances vs Pay-As-You-Go — cost trade-offs","https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations"],["Case study: reduce costs for an over-provisioned Azure environment","https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices"]],notes:["What are Reserved Instances and when do they make sense?","What's the difference between scaling up vs scaling out?","How would you justify cloud costs to a bank CFO who's skeptical?"],cp:"You can use the Azure Pricing Calculator to estimate costs for a multi-tier deployment and present the trade-offs."},
+{w:30,p:3,title:"Integration + Application Architecture",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MS Learn: Design application architecture (messaging, events, APIs)","https://learn.microsoft.com/en-us/training/modules/design-application-architecture/"],["Read: Compare Azure messaging services — Service Bus vs Event Grid vs Event Hubs","https://learn.microsoft.com/en-us/azure/event-grid/compare-messaging-services"],["Read: Azure API Management key concepts","https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts"],["Read: Serverless architecture on Azure — Functions, Logic Apps","https://learn.microsoft.com/en-us/azure/architecture/checklist/dev-ops"],["Case study: choose messaging architecture for an event-driven banking system","https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/event-driven"]],notes:["When would you use Service Bus vs Event Grid vs Event Hubs? Give a scenario for each.","What is API Management and what problem does it solve?","What's the difference between serverless and microservices architectures?"],cp:"You can choose the right messaging/integration service for a given scenario without hesitation."},
+{w:31,p:3,title:"Practice Exams + Architecture Scenarios",mon:[0,1],thu:[2],fri:[3,4],tasks:[["MeasureUp AZ-305 Practice Test — Mode 1 (learning mode)","https://www.measureup.com/az-305-designing-microsoft-azure-infrastructure-solutions.html"],["Review AZ-305 exam skills outline — mark what you know cold","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305"],["MeasureUp AZ-305 — Mode 2 (timed practice test)","https://www.measureup.com/az-305-designing-microsoft-azure-infrastructure-solutions.html"],["Anki cards for every wrong answer from both test modes","https://apps.ankiweb.net/"],["Architecture scenario practice: design a solution from scratch — whiteboard it, no notes","https://learn.microsoft.com/en-us/azure/architecture/"]],notes:["MeasureUp Mode 1 score: ___ / Mode 2 timed score: ___","What design domain is your weakest?","Pick a scenario from the Azure Architecture Center and explain the design decisions out loud."],cp:"MeasureUp timed score 75%+. If not there, don't move on yet."},
+{w:32,p:3,title:"Gap Fill + Deep Architecture Study",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Revisit your weakest AZ-305 design domain from Week 31","https://learn.microsoft.com/en-us/training/browse/?products=azure&levels=advanced"],["Complete any remaining MS Learn AZ-305 path modules","https://learn.microsoft.com/en-us/training/paths/design-identity-governance-monitor-solutions/"],["MeasureUp AZ-305 — custom test focusing on weak areas only","https://www.measureup.com/az-305-designing-microsoft-azure-infrastructure-solutions.html"],["Read: Azure Landing Zones — what they are and why architects design them","https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/"],["Read: Cloud Adoption Framework overview — key for architect-level exam questions","https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/"]],notes:["What is an Azure Landing Zone and when would you design one?","What is the Cloud Adoption Framework and why do architects need to know it?","MeasureUp score trend: Week 31 ___ → Week 32 ___. Moving in the right direction?"],cp:"MeasureUp 80%+ on focused domain tests. MeasureUp score trending up week over week."},
+{w:33,p:3,title:"Scenario Practice + Case Studies",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Azure Architecture Center: Enterprise-scale reference architecture deep dive","https://learn.microsoft.com/en-us/azure/architecture/landing-zones/"],["Case study: financial services architecture design for a mid-size bank","https://learn.microsoft.com/en-us/azure/architecture/industries/finance/"],["MeasureUp AZ-305 full timed exam — treat it exactly like the real thing","https://www.measureup.com/az-305-designing-microsoft-azure-infrastructure-solutions.html"],["Review exam question patterns — practice answering 'You need to design...' scenarios","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305"],["Create 20 final Anki cards from your remaining gaps","https://apps.ankiweb.net/"]],notes:["MeasureUp score: ___","Can you answer 'You need to design...' questions confidently without second-guessing?","What design pattern are you least comfortable with right now?"],cp:"MeasureUp 85%+ on full timed exam."},
+{w:34,p:3,title:"Final Review — AZ-305",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Review all 5 WAF pillars with concrete architecture examples for each","https://learn.microsoft.com/en-us/training/paths/azure-well-architected-framework/"],["Final Anki review — hit every card at least once","https://apps.ankiweb.net/"],["MeasureUp AZ-305 — final full timed exam","https://www.measureup.com/az-305-designing-microsoft-azure-infrastructure-solutions.html"],["Review network and storage design scenarios (most common exam traps)","https://learn.microsoft.com/en-us/training/modules/design-network-solutions/"],["Rest. Anki cards only. No new material. You're ready.","https://apps.ankiweb.net/"]],notes:["Final MeasureUp score: ___","What area do you feel most solid on going into exam day?","What's your game plan for exam day — time management, flagging questions, etc.?"],cp:"MeasureUp 85%+ twice in a row. Schedule the exam now."},
+{w:35,p:3,title:"Take the AZ-305 Exam + Launch",mon:[0,1],thu:[2],fri:[3,4],tasks:[["Light review only — Anki cards, no new material","https://apps.ankiweb.net/"],["Review exam day logistics — testing center location, valid ID required","https://learn.microsoft.com/en-us/credentials/certifications/azure-solutions-architect/"],["Final confidence check: explain your 3 weakest topics out loud, no notes","https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305"],["Update resume and LinkedIn immediately after passing","https://www.linkedin.com/"],["TAKE THE AZ-305 EXAM","https://learn.microsoft.com/en-us/credentials/certifications/azure-solutions-architect/"]],notes:["Exam score: ___","How does it feel to be an Azure Solutions Architect?","You're at $200k territory now. Start applying today — don't wait."],cp:"PASS AZ-305. Update resume and LinkedIn TODAY. Start the job search immediately. You earned this."},
+];
+
+function svGetTasks(w){try{return JSON.parse(localStorage.getItem('tasks_w'+w))||{};}catch(e){return {};}}
+function svSaveTask(w,i,v){const s=svGetTasks(w);s[i]=v;localStorage.setItem('tasks_w'+w,JSON.stringify(s));}
+function svGetNotes(w){return localStorage.getItem('notes_w'+w)||'';}
+function svWeekPct(wk){const s=svGetTasks(wk.w);const d=Object.values(s).filter(Boolean).length;return wk.tasks.length?Math.round(d/wk.tasks.length*100):0;}
+function svPhasePct(p){const ws=SV_WEEKS.filter(w=>w.p===p);const total=ws.reduce((s,w)=>s+w.tasks.length,0);const done=ws.reduce((s,w)=>s+Object.values(svGetTasks(w.w)).filter(Boolean).length,0);return{done,total,pct:total?Math.round(done/total*100):0};}
+function svOverallPct(){const total=SV_WEEKS.reduce((s,w)=>s+w.tasks.length,0);const done=SV_WEEKS.reduce((s,w)=>s+Object.values(svGetTasks(w.w)).filter(Boolean).length,0);return{done,total,pct:total?Math.round(done/total*100):0};}
+
+function svUpdateStats(){
+  const ov=svOverallPct();
+  const el=document.getElementById('sv-overall-pct');if(el)el.textContent=ov.pct+'%';
+  const bar=document.getElementById('sv-overall-bar-fill');if(bar)bar.style.width=ov.pct+'%';
+  [1,2,3].forEach(p=>{
+    const pc=svPhasePct(p);
+    const s=document.getElementById('sv-p'+p+'stat');if(s)s.textContent=pc.pct+'%';
+    const pb=document.querySelector('.sv-p'+p+'-phasebar');if(pb)pb.style.width=pc.pct+'%';
+  });
+  SV_WEEKS.forEach(wk=>{
+    const pct=svWeekPct(wk);
+    const f=document.querySelector('.sv-wpf-'+wk.w);if(f)f.style.width=pct+'%';
+    const p=document.querySelector('.sv-wpp-'+wk.w);if(p)p.textContent=pct+'%';
+  });
+}
+
+function svRenderTasks(wk,indices){
+  if(!indices||!indices.length)return '<span style="color:#6b7060;font-size:11px">—</span>';
+  const saved=svGetTasks(wk.w);
+  return indices.map(i=>{
+    const[text,url]=wk.tasks[i];
+    const chk=saved[i]?'checked':'';
+    const dc=saved[i]?' done':'';
+    return `<div class="sv-task-row"><input type="checkbox" class="sv-task-check" ${chk} data-week="${wk.w}" data-idx="${i}" onchange="svToggleTask(this)"><span class="sv-task-lbl${dc}" id="sv-tl-${wk.w}-${i}">${text}</span><a class="sv-link-btn" href="${url}" target="_blank" rel="noopener">→ Open</a></div>`;
+  }).join('');
+}
+
+function svRenderWeek(wk){
+  const color=SV_PHASE_COLORS[wk.p];
+  const pct=svWeekPct(wk);
+  const rows=[
+    {lbl:'Mon',type:'Flex',blk:'FB3: 10:00–10:45<br>FB5: 2:00–3:15',tasks:svRenderTasks(wk,wk.mon),anki:false},
+    {lbl:'Tue',type:'Office',blk:'Commute 5:45am',tasks:null,anki:true},
+    {lbl:'Wed',type:'Office+Church',blk:'Commute 5:45am',tasks:null,anki:true},
+    {lbl:'Thu',type:'Office',blk:'FB5: 12:45–2:00',tasks:svRenderTasks(wk,wk.thu),anki:false},
+    {lbl:'Fri',type:'Flex',blk:'FB3: 10:00–10:45<br>FB5: 2:00–3:15',tasks:svRenderTasks(wk,wk.fri),anki:false},
+  ];
+  const schedHTML=rows.map(r=>`<div class="sv-sched-row${r.anki?' sv-anki':''}"><div class="sv-day-col">${r.lbl}<span class="sv-day-type">${r.type}</span></div><div class="sv-block-col">${r.blk}</div><div class="sv-tasks-col">${r.anki?'<div class="sv-anki-badge">🃏 Anki — 15 min daily cards</div>':r.tasks}</div></div>`).join('');
+  const notesItems=wk.notes.map(q=>`<li>${q}</li>`).join('');
+  const notesVal=(svGetNotes(wk.w)||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<div class="sv-week-card sv-p${wk.p}" id="sv-wk-${wk.w}">
+<div class="sv-week-hdr" onclick="svToggleWeek(${wk.w})">
+  <span class="sv-week-num">WK ${wk.w}</span>
+  <span class="sv-week-title">${wk.title}</span>
+  <div class="sv-wk-prog-bar"><div class="sv-wk-prog-fill sv-wpf-${wk.w}" style="width:${pct}%;background:${color}"></div></div>
+  <span class="sv-wk-pct sv-wpp-${wk.w}">${pct}%</span>
+  <span class="sv-chevron">▶</span>
+</div>
+<div class="sv-week-body">
+  <div class="sv-section-lbl">Daily Schedule — Command Schedule Blocks</div>
+  <div class="sv-sched-grid">${schedHTML}</div>
+  <div class="sv-section-lbl">Guided Notes — answer these, don't skip them</div>
+  <div class="sv-notes-prompts"><p>Vague = you don't know it. Specific = you own it.</p><ol>${notesItems}</ol></div>
+  <textarea class="sv-notes-ta" placeholder="Your notes here..." oninput="localStorage.setItem('notes_w${wk.w}',this.value)">${notesVal}</textarea>
+  <div class="sv-checkpoint"><span class="sv-cp-icon">🎯</span><div class="sv-cp-text"><b>Don't move on until:</b>${wk.cp}</div></div>
+</div>
+</div>`;
+}
+
+function svRenderAll(){
+  const container=document.getElementById('sv-main-content');
+  if(!container)return;
+  const names={1:"Phase 1: Terraform Associate",2:"Phase 2: AZ-104 Azure Administrator",3:"Phase 3: AZ-305 Solutions Architect"};
+  const labels={1:"PHASE 1",2:"PHASE 2",3:"PHASE 3"};
+  let html='';
+  [1,2,3].forEach(p=>{
+    const ws=SV_WEEKS.filter(w=>w.p===p);
+    const pc=svPhasePct(p);
+    const color=SV_PHASE_COLORS[p];
+    html+=`<div class="sv-phase-section sv-p${p}" id="sv-phase-${p}" data-phase="${p}">
+<div class="sv-phase-hdr"><div class="sv-phase-badge">${labels[p]}</div><div class="sv-phase-title">${names[p]}</div></div>
+<div class="sv-phase-prog-row"><div class="sv-bar-outer"><div class="sv-phase-prog-bar sv-p${p}-phasebar" style="width:${pc.pct}%;background:${color}"></div></div><span style="font-size:11px;color:#6b7060;white-space:nowrap">${pc.done}/${pc.total} tasks</span></div>`;
+    ws.forEach(w=>{html+=svRenderWeek(w);});
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+function svToggleTask(cb){
+  const w=parseInt(cb.dataset.week),i=parseInt(cb.dataset.idx);
+  svSaveTask(w,i,cb.checked);
+  const lbl=document.getElementById('sv-tl-'+w+'-'+i);
+  if(lbl)lbl.classList.toggle('done',cb.checked);
+  svUpdateStats();
+}
+
+function svToggleWeek(wNum){
+  const card=document.getElementById('sv-wk-'+wNum);
+  if(card)card.classList.toggle('open');
+}
+
+function svFilterPhase(p){
+  document.querySelectorAll('.sv-phase-btn').forEach((b,i)=>b.classList.toggle('active',(p===0&&i===0)||(p===1&&i===1)||(p===2&&i===2)||(p===3&&i===3)));
+  document.querySelectorAll('.sv-phase-section').forEach(s=>s.classList.toggle('sv-hidden',p!==0&&parseInt(s.dataset.phase)!==p));
+}
+
+function openStudyTracker(){
+  document.getElementById('day-picker-overlay').style.display='none';
+  const mainEl=document.querySelector('main');
+  const progressBar=document.getElementById('day-progress-bar');
+  if(mainEl)mainEl.style.display='none';
+  if(progressBar)progressBar.style.display='none';
+  const sv=document.getElementById('study-view');
+  if(sv){
+    sv.classList.add('visible');
+    if(!document.getElementById('sv-main-content').innerHTML){
+      svRenderAll();
+    }
+    svUpdateStats();
+  }
+  document.getElementById('current-day-label').textContent='Study Tracker';
+  const studyBtn=document.getElementById('study-btn');
+  if(studyBtn)studyBtn.style.display='none';
+}
+
+function closeStudyTracker(){
+  const sv=document.getElementById('study-view');
+  if(sv)sv.classList.remove('visible');
+  const mainEl=document.querySelector('main');
+  const progressBar=document.getElementById('day-progress-bar');
+  if(mainEl)mainEl.style.display='';
+  if(progressBar)progressBar.style.display='';
+  const studyBtn=document.getElementById('study-btn');
+  if(studyBtn)studyBtn.style.display='';
+  if(currentDay){
+    document.getElementById('current-day-label').textContent=schedules[currentDay].label;
+  } else {
+    showDayPicker();
+  }
 }
 </script>
 </body>
